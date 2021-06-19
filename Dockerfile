@@ -20,7 +20,7 @@ ARG USER_GID=$USER_UID
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 ENV TZ Australia/Sydney
-ENV JUPYTER_ENABLE_LAB=yes
+ENV SHELL /bin/bash
 
 # Set container time zone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
