@@ -20,3 +20,7 @@ RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_
 RUN unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/
 RUN rm /tmp/chromedriver_linux64.zip
 RUN export PATH=$PATH:/usr/local/bin/chromedriver
+
+# Install Python packages
+RUN COPY requirements.txt /tmp
+RUN pip3 install -r /tmp/requirements.txt
