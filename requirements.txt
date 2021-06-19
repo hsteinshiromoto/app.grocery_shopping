@@ -1,8 +1,15 @@
+asttokens==2.0.5
 certifi==2021.5.30
 chardet==4.0.0
+colorama==0.4.4
 dbus-python==1.2.16
+executing==0.6.0
+icecream==2.1.0
 idna==2.10
+Pygments==2.9.0
 PyGObject==3.36.0
+python-dotenv==0.17.1
 requests==2.25.1
 selenium==3.141.0
+six==1.16.0
 urllib3==1.26.5
