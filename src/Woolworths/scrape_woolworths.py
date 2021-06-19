@@ -21,7 +21,7 @@
 
 '''
 
-import json, requests, time, random, sys
+import json, requests, time, random, sys, subprocess
 
 # Web scraping library
 from selenium import webdriver
@@ -33,6 +33,9 @@ from selenium.webdriver.chrome.options import Options
 
 from pathlib import Path
 
+PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
+                                    stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
+DATA = PROJECT_ROOT / "data"
 CURRENT_DIR = Path(__file__).resolve().parent
 
 sys.path.append(str(CURRENT_DIR))
@@ -52,9 +55,8 @@ def execute_script(filename):
     '''' Injects Javascript into the browser and returns JSON
     :param filename: the name of the file containing Javascript to inject
     :return: JSON data - can be either a list or dictionary '''
-    f = open(str(CURRENT_DIR / filename), 'r')
-    json_string = browser.execute_script(f.read())
-    f.close()
+    with open(str(CURRENT_DIR / filename), 'r') as f:
+        json_string = browser.execute_script(f.read())
     json_data = json.loads(json_string)
     return json_data
 
@@ -62,7 +64,7 @@ def save_json(filename, data):
     ''' Saves data as a JSON file named filename
     :param filename: the name of the file to save
     :param data: a dictionary that will be encoded as a JSON string '''
-    f = open(filename, 'w+')
+    f = open(str(DATA/"raw"/filename), 'w+')
     json_string = json.dumps(data, indent=4, sort_keys=True)
     f.write(json_string)
     f.close()
