@@ -32,15 +32,15 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 # Set up the necessary Debian packages
 # ---
 COPY debian-requirements.txt /usr/local/debian-requirements.txt
-
-# Install necessary libraries for google chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
 RUN apt-get update && \
 	DEBIAN_PACKAGES=$(egrep -v "^\s*(#|$)" /usr/local/debian-requirements.txt) && \
     apt-get install -y $DEBIAN_PACKAGES && \
     apt-get clean
-RUN apt install -y google-chrome-stable
+
+# Install necessary libraries for google chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
+RUN apt-get update && apt install -y google-chrome-stable
 
 # Download and install chromedriver
 RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_linux64.zip -P /tmp
@@ -48,18 +48,38 @@ RUN unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/
 RUN rm /tmp/chromedriver_linux64.zip
 RUN export PATH=$PATH:/usr/local/bin/chromedriver
 
-# Install Python packages
+# ---
+# Setup vscode as nonroot user
+# ---
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    #
+    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # ---
 # Copy Container Setup Scripts
 # ---
+COPY bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY bin/setup_python.sh /usr/local/bin/setup_python.sh
 COPY bin/test_environment.py /usr/local/bin/test_environment.py
 COPY bin/setup.py /usr/local/bin/setup.py
 COPY requirements.txt /usr/local/requirements.txt
 
 RUN chmod +x /usr/local/bin/setup_python.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh && \
 	chmod +x /usr/local/bin/test_environment.py && \
 	chmod +x /usr/local/bin/setup.py
 
+# Create the "home" folder
+RUN mkdir -p /home/$USERNAME
+WORKDIR /home/$USERNAME
+
+# N.B.: Keep the order 1. entrypoint, 2. cmd
+USER $USERNAME
+
 RUN bash /usr/local/bin/setup_python.sh test_environment && \
 	bash /usr/local/bin/setup_python.sh requirements
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
