@@ -21,7 +21,7 @@
 
 '''
 
-import json, requests, time, random
+import json, requests, time, random, sys
 
 # Web scraping library
 from selenium import webdriver
@@ -33,7 +33,9 @@ from selenium.webdriver.chrome.options import Options
 
 from pathlib import Path
 
-# print(Path(__file__).resolve().parent)
+CURRENT_DIR = Path(__file__).resolve().parent
+
+sys.path.append(str(CURRENT_DIR))
 
 chrome_options = Options()
 chrome_options.add_argument('--no-sandbox')
@@ -50,7 +52,7 @@ def execute_script(filename):
     '''' Injects Javascript into the browser and returns JSON
     :param filename: the name of the file containing Javascript to inject
     :return: JSON data - can be either a list or dictionary '''
-    f = open(filename, 'r')
+    f = open(str(CURRENT_DIR / filename), 'r')
     json_string = browser.execute_script(f.read())
     f.close()
     json_data = json.loads(json_string)
