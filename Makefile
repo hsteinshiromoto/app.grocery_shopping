@@ -16,7 +16,7 @@ endif
 # ---
 
 ifndef DOCKER_IMAGE_NAME
-DOCKER_IMAGE_NAME=docker.pkg.github.com/hsteinshiromoto/$(shell basename $(CURDIR))/datascience
+DOCKER_IMAGE_NAME=hsteinshiromoto/$(shell basename $(CURDIR))
 endif
 
 BUILD_DATE = $(shell date +%Y%m%d-%H:%M:%S)
@@ -31,13 +31,6 @@ build:
 
 	@echo "Building docker image ${DOCKER_IMAGE_TAG}"
 	docker build --build-arg BUILD_DATE=${BUILD_DATE} -t ${DOCKER_IMAGE_TAG} .
-	@echo "Done"
-
-push:
-	$(eval DOCKER_IMAGE_TAG=${DOCKER_IMAGE_NAME}:${DOCKER_TAG})
-
-	@echo "Pushing docker image ${DOCKER_IMAGE_TAG} to docker.pkg.github.com/hsteinshiromoto"
-	docker push ${DOCKER_IMAGE_TAG}
 	@echo "Done"
 
 #################################################################################
