@@ -126,14 +126,6 @@ def main(product_categories: list[str], driver):
             container_soup = page_soup.findAll(
                 'div', {'class': 'product-main-info'})
 
-            # for item in container_soup:
-            #     print(f"product: {item.contents[2].text}, price: {item.contents[5].text}")
-
-            if(len(container_soup) != 0):
-                # category = page_soup.find(
-                #     'h1', {'class': 'tileList-title'}).text.strip()
-                pattern = '“([^"]*)”'
-                category = None
             arrSinglePage, n_items = scrapping(container_soup, category)
             for obj in arrSinglePage:
                 arr.append(obj)
