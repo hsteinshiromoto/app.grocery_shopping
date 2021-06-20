@@ -1,11 +1,12 @@
+import json
+import re
+from time import sleep
+
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
-from urllib.request import urlopen
-from time import sleep
+
 from woolies_helper import *
-import json
-from itertools import product
-import re
+
 # adding webdriver options
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
