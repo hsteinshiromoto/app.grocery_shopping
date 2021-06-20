@@ -107,11 +107,12 @@ def main(product_categories: list[str], driver):
     url_header = make_url_header(product_categories)
 
     # scrapping for each section selected in the list
-    for header in url_header:
+    for category in product_categories:
         n_items = 1
         i = 1
 
         while (n_items != 0):
+            header = f'https://shop.coles.com.au/a/national/everything/search/{category}?pageNumber='
             url = header + str(i)
             print('page ' + str(i) + ": " + url)
             driver.get(url)
