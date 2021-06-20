@@ -93,15 +93,15 @@ def make_url_header(product_categories: list[str]):
 def main(product_categories: list[str], driver):
     # contain full list details for woolies
     full_list = []
-    seller = {
-        "seller":
-        {"name": "Coles",
-        "description": "Coles Supermarket",
-        "url": "https://shop.coles.com.au/a/national/home",
-        "added_datetime": None
-        }
-    }
-    full_list.append(seller)
+    # seller = {
+    #     "seller":
+    #     {"name": "Coles",
+    #     "description": "Coles Supermarket",
+    #     "url": "https://shop.coles.com.au/a/national/home",
+    #     "added_datetime": None
+    #     }
+    # }
+    # full_list.append(seller)
     arr = []  # used to store every object
 
     url_header = make_url_header(product_categories)
