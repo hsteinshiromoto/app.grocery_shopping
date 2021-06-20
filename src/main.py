@@ -19,8 +19,9 @@ with open(str(DATA / "raw" / "2021-06-20_woolworths.json")) as json_file:
 
 
 coles = pd.DataFrame.from_dict(coles[0]["products"])
-woolies = pd.DataFrame.from_dict(woolies[1]["products"])
+coles.to_csv(str(DATA / "interim" / "coles.csv"))
 
-woolies = pd.read_json(str(DATA / "raw" / "2021-06-20_woolworths.json"))
+woolies = pd.DataFrame.from_dict(woolies[1]["products"])
+woolies.to_csv(str(DATA / "interim" / "woolies.csv"))
 
 sys.exit(0)
