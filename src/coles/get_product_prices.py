@@ -38,24 +38,22 @@ def scrapping(container_soup, category):
     
     for container in containers:
         # get the product name
-        product_name = container.find("span", {"class": "sr-only"}).text.strip()
+        product_name = container.find("span", {"class": "product-name"}).text.strip()
+        product_brand = container.find("span", {"class": "product-brand"}).text.strip()
         # initial product is available
         availability = True
         # get the date and time of the scrapping time
         date_now = datetime.datetime.now()        
 
         # check price and availability of each item
-        if(container.find('div', {'class': 'shelfProductTile-cupPrice'})):
-            price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
-        elif(container.find('span', {'class':'price-dollars'})):
-            price_dollar = container.find('span',{'class':'price-dollars'})
-            price_cent = container.find('span', {'class': 'price-cents'})
-            price = '$' + price_dollar.text + '.' + price_cent.text
+        if (container.find('span', {'class': 'dollar-value'})) :
+            price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
         else:
             price = 'Unavailable at the momment'
             availability = False
 
         obj = {
+            "brand": product_brand,
             "name": product_name,
             "price": price,
             "availability": availability,
@@ -121,8 +119,11 @@ def main(product_categories: list[str], driver):
             html = driver.page_source
             page_soup = soup(html, 'html.parser')
 
+            with open("coles.html", "w") as f:
+                f.write(str(page_soup))
+
             container_soup = page_soup.findAll(
-                'div', {'class': 'shelfProductTile-information'})
+                'div', {'class': 'product-main-info'})
 
             # for item in container_soup:
             #     print(f"product: {item.contents[2].text}, price: {item.contents[5].text}")
@@ -131,9 +132,8 @@ def main(product_categories: list[str], driver):
                 # category = page_soup.find(
                 #     'h1', {'class': 'tileList-title'}).text.strip()
                 pattern = '“([^"]*)”'
-                category = page_soup.find(
-                    'h1', {'class': 'searchContainer-title'}).text.strip()
-            arrSinglePage, n_items = scrapping(container_soup, re.findall(pattern, category)[0])
+                category = None
+            arrSinglePage, n_items = scrapping(container_soup, category)
             for obj in arrSinglePage:
                 arr.append(obj)
             i += 1
@@ -143,7 +143,7 @@ def main(product_categories: list[str], driver):
     full_list.append(products)
 
     # write a json file on all items
-    with open(str(DATA / "raw" / f'{datetime.datetime.now().date()}_woolworths.json'), 'w') as outfile:
+    with open(str(DATA / "raw" / f'{datetime.datetime.now().date()}_coles.json'), 'w') as outfile:
         json.dump(full_list, outfile, default=myconverter)
 
 if __name__ == "__main__":
