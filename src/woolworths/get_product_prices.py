@@ -1,11 +1,14 @@
-    """Scrape products from Woolworths
+#!/usr/bin/env python3
+#-*- coding: utf8 -*-
 
-    Returns:
-        (dict): Prices, product name, datetime
+"""Scrape products from Woolworths
 
-    References:
-        [1] https://github.com/nguyenhailong253/grosaleries-web-scrapers
-    """
+Returns:
+    (dict): Prices, product name, datetime
+
+References:
+    [1] https://github.com/nguyenhailong253/grosaleries-web-scrapers
+"""
 
 import datetime
 import json
@@ -140,7 +143,7 @@ def main(product_categories: list[str], driver):
     full_list.append(products)
 
     # write a json file on all items
-    with open(str(DATA / "raw" / f'{datetime.now().date()}_woolworths.json'), 'w') as outfile:
+    with open(str(DATA / "raw" / f'{datetime.datetime.now().date()}_woolworths.json'), 'w') as outfile:
         json.dump(full_list, outfile, default=myconverter)
 
 if __name__ == "__main__":
