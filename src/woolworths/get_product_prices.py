@@ -41,24 +41,33 @@ def scrapping(container_soup, category):
         product_name = container.find("span", {"class": "sr-only"}).text.strip()
         # initial product is available
         availability = True
+        unit_availability = True
         # get the date and time of the scrapping time
         date_now = datetime.datetime.now()        
 
         # check price and availability of each item
-        if(container.find('div', {'class': 'shelfProductTile-cupPrice'})):
-            price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
-        elif(container.find('span', {'class':'price-dollars'})):
+        if(container.find('span', {'class':'price-dollars'})):
             price_dollar = container.find('span',{'class':'price-dollars'})
             price_cent = container.find('span', {'class': 'price-cents'})
-            price = '$' + price_dollar.text + '.' + price_cent.text
+            price = price_dollar.text + '.' + price_cent.text
+
         else:
             price = 'Unavailable at the momment'
             availability = False
 
+        if(container.find('div', {'class': 'shelfProductTile-cupPrice'})):
+            unit_price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
+        
+        else:
+            unit_price = 'Unavailable at the momment'
+            unit_availability = False
+
         obj = {
             "name": product_name,
             "price": price,
+            "unit_price": unit_price,
             "availability": availability,
+            "unit_availability": unit_availability,
             "datetime": date_now,
             "category": category,
             "pic": None
@@ -120,6 +129,9 @@ def main(product_categories: list[str], driver):
             sleep(10)
             html = driver.page_source
             page_soup = soup(html, 'html.parser')
+
+            with open("woolies.html", 'w') as f:
+                f.write(str(page_soup))
 
             container_soup = page_soup.findAll(
                 'div', {'class': 'shelfProductTile-information'})
