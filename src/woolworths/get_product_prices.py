@@ -155,7 +155,7 @@ def main(product_categories: list[str], driver):
     full_list.append(products)
 
     # write a json file on all items
-    with open(str(DATA / "raw" / f'{datetime.datetime.now().date()}_woolworths.json'), 'w') as outfile:
+    with open(str(DATA / "raw" / f'woolworths.json'), 'w') as outfile:
         json.dump(full_list, outfile, default=myconverter)
 
 if __name__ == "__main__":
