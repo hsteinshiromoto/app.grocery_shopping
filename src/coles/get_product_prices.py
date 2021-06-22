@@ -40,6 +40,7 @@ def scrapping(container_soup, category):
         # get the product name
         product_name = container.find("span", {"class": "product-name"}).text.strip()
         product_brand = container.find("span", {"class": "product-brand"}).text.strip()
+        product_quantity = container.find("span", {"class": "package-size"}).text.strip()
         # initial product is available
         availability = True
         # get the date and time of the scrapping time
@@ -56,6 +57,7 @@ def scrapping(container_soup, category):
             "brand": product_brand,
             "name": product_name,
             "price": price,
+            "product_quantity": product_quantity,
             "availability": availability,
             "datetime": date_now,
             "category": category,
