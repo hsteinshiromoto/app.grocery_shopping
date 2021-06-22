@@ -40,7 +40,10 @@ def scrapping(container_soup, category):
         # get the product name
         product_name = container.find("span", {"class": "product-name"}).text.strip()
         product_brand = container.find("span", {"class": "product-brand"}).text.strip()
-        product_quantity = container.find("span", {"class": "package-size"}).text.strip()
+        package_sizes = container.find_all("span", {"class": "package-size"})
+        valid_sizes = [re.match(r"\d+\w+\Z", i.text, re.IGNORECASE) for i in package_sizes]
+        product_quantity = [x for x in valid_sizes if x is not None]
+        product_quantity = product_quantity[0].group(0)
         # initial product is available
         availability = True
         # get the date and time of the scrapping time
@@ -126,7 +129,7 @@ def main(product_categories: list[str], driver):
                 f.write(str(page_soup))
 
             container_soup = page_soup.findAll(
-                'div', {'class': 'product-main-info'})
+                'header', {'class': 'product-header'})
 
             arrSinglePage, n_items = scrapping(container_soup, category)
             for obj in arrSinglePage:
