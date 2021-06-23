@@ -40,10 +40,15 @@ def scrapping(container_soup, category):
         # get the product name
         product_name = container.find("span", {"class": "product-name"}).text.strip()
         product_brand = container.find("span", {"class": "product-brand"}).text.strip()
-        package_sizes = container.find_all("span", {"class": "package-size"})
-        valid_sizes = [re.match(r"\d+\w+\Z", i.text, re.IGNORECASE) for i in package_sizes]
+        package_sizes = container.find_all("span", {"class": "accessibility-inline"})
+        pattern = re.compile(r"\d+\W{0,1}\w+", re.IGNORECASE)
+        valid_sizes = [re.search(pattern, i.text.rstrip()) for i in package_sizes]
         product_quantity = [x for x in valid_sizes if x is not None]
-        product_quantity = product_quantity[0].group(0)
+        try:
+            product_quantity = product_quantity[0].group(0)
+
+        except IndexError:
+            product_quantity = None
         # initial product is available
         availability = True
         # get the date and time of the scrapping time
