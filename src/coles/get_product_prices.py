@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 from time import sleep
 
+import numpy as np
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
 
@@ -58,14 +59,14 @@ def scrapping(container_soup, category):
         if (container.find('span', {'class': 'dollar-value'})) :
             price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
         else:
-            price = 'Unavailable at the momment'
+            price = np.nan
             availability = False
 
         obj = {
             "brand": product_brand,
             "name": product_name,
             "price": price,
-            "product_quantity": product_quantity,
+            "quantity": product_quantity,
             "availability": availability,
             "datetime": date_now,
             "category": category,
