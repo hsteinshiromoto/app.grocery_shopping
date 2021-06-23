@@ -83,3 +83,6 @@ RUN bash /usr/local/bin/setup_python.sh test_environment && \
 	bash /usr/local/bin/setup_python.sh requirements
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+EXPOSE 8888 
+CMD ["jupyter", "lab", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
