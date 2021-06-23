@@ -19,6 +19,7 @@ from pathlib import Path
 from time import sleep
 
 import numpy as np
+import pandas as pd
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
 
@@ -149,6 +150,9 @@ def main(product_categories: list[str], driver):
     # write a json file on all items
     with open(str(DATA / "raw" / f'coles.json'), 'w') as outfile:
         json.dump(full_list, outfile, default=myconverter)
+
+    return pd.DataFrame.from_dict(full_list[0]['products'])
+
 
 if __name__ == "__main__":
     product_categories = ["milk", "eggs", "banana", "nappies"]
