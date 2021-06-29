@@ -175,7 +175,7 @@ def main(product_categories: list[str], driver, supermarket: str,
             page_soup = soup(html, 'html.parser')
 
             if save_html:
-                with open(str(DATA / "raw" / f"{url.split('/')[-1]}.html"), 'w') as f:
+                with open(str(DATA / "raw" / f"{supermarket}.html"), 'w') as f:
                     f.write(str(page_soup))
 
             container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])
