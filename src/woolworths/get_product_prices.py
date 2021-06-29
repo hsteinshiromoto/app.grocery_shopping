@@ -32,15 +32,11 @@ sys.path.append(str(PROJECT_ROOT))
 from src.base import convert_datetime, make_webdriver, argparse_dtype_converter
 
 
-def scrapping(container_soup, category):
+def scrapping(container_soup, category):  
     
-    containers = container_soup
-    print('Total items in this page: ' + str(len(containers)))
-    print('')
+    products_list = []
     
-    arr = []
-    
-    for container in containers:
+    for container in container_soup:
         # get the product name
         product_name = container.find("span", {"class": "sr-only"}).text.strip()
         # initial product is available
@@ -78,8 +74,9 @@ def scrapping(container_soup, category):
         }
 
         #return all the items in the page
-        arr.append(obj)
-    return arr, len(containers)
+        products_list.append(obj)
+
+    yield from products_list
 
 
 def make_url_header(product_categories: list[str], supermarket: str) -> list[str]:
@@ -98,6 +95,7 @@ def main(product_categories: list[str], driver, supermarket: str,
         save_html: bool=False):
 
     url_header = make_url_header(product_categories, supermarket)
+    shopping_list = pd.DataFrame()
 
     # scrapping for each section selected in the list
     for url in url_header:
@@ -124,29 +122,25 @@ def main(product_categories: list[str], driver, supermarket: str,
             container_soup = page_soup.findAll(
                 'div', {'class': 'shelfProductTile-information'})
 
-            # for item in container_soup:
-            #     print(f"product: {item.contents[2].text}, price: {item.contents[5].text}")
+            n_items = len(container_soup)
+            print(f'Total items in this page: {n_items}')
+            print('')
 
-            if(len(container_soup) != 0):
-                # category = page_soup.find(
-                #     'h1', {'class': 'tileList-title'}).text.strip()
+            if(n_items != 0):
                 pattern = '“([^"]*)”'
                 category = page_soup.find(
                     'h1', {'class': 'searchContainer-title'}).text.strip()
-            arrSinglePage, n_items = scrapping(container_soup, re.findall(pattern, category)[0])
-            for obj in arrSinglePage:
-                arr.append(obj)
+                products_list = scrapping(container_soup, re.findall(pattern, category)[0])
+
+                for product in products_list:
+                    shopping_list = pd.concat([shopping_list, pd.DataFrame(product, index=[0])])
             i = i + 1
 
-    # add the products array to the full list
-    products = {'products': arr}
-    full_list.append(products)
+    shopping_list["supermarket"] = supermarket
 
-    # write a json file on all items
-    with open(str(DATA / "raw" / f'woolworths.json'), 'w') as outfile:
-        json.dump(full_list, outfile, default=convert_datetime)
+    shopping_list.to_csv(str(DATA / "raw" / f"{supermarket}.csv"), index=False)
 
-    return pd.DataFrame.from_dict(full_list[1]['products'])
+    return shopping_list
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
