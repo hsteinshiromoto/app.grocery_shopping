@@ -86,16 +86,16 @@ def make_url_header(product_categories: list[str], supermarket: str) -> list[str
     supermarket_url_map = {"woolworths": [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]}
 
     try:
-        yield from supermarket_url_map[supermarket]
+        yield from supermarket_url_map[supermarket.lower()]
 
     except KeyError:
         msg = f"Expected supermarket to be either {supermarket_url_map.keys()}."\
-              f"Got {supermarket}"
+              f"Got {supermarket.lower()}"
         raise ValueError(msg)
 
 
-def main(product_categories: list[str], driver, save_html: bool=False, 
-        supermarket: str="woolworths"):
+def main(product_categories: list[str], driver, supermarket: str, 
+        save_html: bool=False):
 
     url_header = make_url_header(product_categories, supermarket)
 
@@ -152,7 +152,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
     parser.add_argument("-s", "--save_html", dest="save_html", type=argparse_dtype_converter
                         ,help="Save requested html files.")
+    parser.add_argument("-m", "--supermarket", dest="supermarket", type=str
+                        ,help="Supermarket of choice")
+
+    args = parser.parse_args()
 
     product_categories = ["milk", "eggs", "banana", "nappies"]
     driver = make_webdriver()
-    main(product_categories, driver)
+    main(product_categories, driver, args.supermarket, args.save_html)
