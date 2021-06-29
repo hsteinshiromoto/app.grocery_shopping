@@ -4,6 +4,7 @@
 
 ## Folders ##
 cloned/*
+data/*
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
