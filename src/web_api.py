@@ -21,9 +21,18 @@ def make_webdriver(user_agent: str="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15
     return webdriver.Chrome(options=options, desired_capabilities=capabilities)
     
 
-def get_status(webdriver):
-    # References:
-    #   [1] https://stackoverflow.com/questions/5799228/how-to-get-status-code-by-using-selenium-py-python-code
+def get_status(webdriver: webdriver) -> int:
+    """Get HTTP status code
+
+    Args:
+        webdriver (webdriver): Selenium webdriver object
+
+    Returns:
+        (int): HTTP status code
+
+    References:
+        [1] https://stackoverflow.com/questions/5799228/how-to-get-status-code-by-using-selenium-py-python-code
+    """
     logs = webdriver.get_log('performance')
 
     for log in logs:
