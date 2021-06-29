@@ -45,21 +45,14 @@ def woolworths_scrapping(container_soup, category):
         date_now = datetime.now()        
 
         # check price and availability of each item
-        if(container.find('span', {'class':'price-dollars'})):
-            price_dollar = container.find('span',{'class':'price-dollars'})
-            price_cent = container.find('span', {'class': 'price-cents'})
-            price = price_dollar.text + '.' + price_cent.text
+        price_dollar = container.find('span',{'class':'price-dollars'})
+        price_cent = container.find('span', {'class': 'price-cents'})
+        price = float(price_dollar.text + '.' + price_cent.text)
 
-        else:
-            price = np.nan
+        if not price:
             availability = False
 
-        if(container.find('div', {'class': 'shelfProductTile-cupPrice'})):
-            unit_price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
-        
-        else:
-            unit_price = np.nan
-            unit_availability = False
+        unit_price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip() or np.nan
 
         obj = {
             "availability": availability,
