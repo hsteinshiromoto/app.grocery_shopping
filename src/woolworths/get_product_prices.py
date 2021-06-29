@@ -11,8 +11,7 @@ References:
 """
 
 import argparse
-import datetime
-import json
+from datetime import datetime
 import re
 import subprocess
 import sys
@@ -32,7 +31,7 @@ sys.path.append(str(PROJECT_ROOT))
 from src.base import convert_datetime, make_webdriver, argparse_dtype_converter
 
 
-def scrapping(container_soup, category):  
+def woolworths_scrapping(container_soup, category):  
     
     products_list = []
     
@@ -43,7 +42,7 @@ def scrapping(container_soup, category):
         availability = True
         unit_availability = True
         # get the date and time of the scrapping time
-        date_now = datetime.datetime.now()        
+        date_now = datetime.now()        
 
         # check price and availability of each item
         if(container.find('span', {'class':'price-dollars'})):
@@ -63,14 +62,15 @@ def scrapping(container_soup, category):
             unit_availability = False
 
         obj = {
-            "name": product_name,
-            "price": price,
-            "unit_price": unit_price,
             "availability": availability,
-            "unit_availability": unit_availability,
-            "datetime": date_now,
+            "brand": None,
             "category": category,
-            "pic": None
+            "datetime": date_now,
+            "name": product_name,
+            "pic": None,
+            "price": price,
+            "quantity": None,
+            "unit_price": unit_price,
         }
 
         #return all the items in the page
@@ -79,8 +79,57 @@ def scrapping(container_soup, category):
     yield from products_list
 
 
+def coles_scrapping(container_soup, category):
+    
+    arr = []
+    
+    for container in container_soup:
+        # get the product name
+        product_name = container.find("span", {"class": "product-name"}).text.strip()
+        product_brand = container.find("span", {"class": "product-brand"}).text.strip()
+        package_sizes = container.find_all("span", {"class": "accessibility-inline"})
+        pattern = re.compile(r"\d+\W{0,1}\w+", re.IGNORECASE)
+        valid_sizes = [re.search(pattern, i.text.rstrip()) for i in package_sizes]
+        product_quantity = [x for x in valid_sizes if x is not None]
+        try:
+            product_quantity = product_quantity[0].group(0)
+
+        except IndexError:
+            product_quantity = None
+        # initial product is available
+        availability = True
+        # get the date and time of the scrapping time
+        date_now = datetime.datetime.now()        
+
+        # check price and availability of each item
+        if (container.find('span', {'class': 'dollar-value'})) :
+            price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
+        else:
+            price = np.nan
+            availability = False
+
+        obj = {
+            "availability": availability,
+            "brand": product_brand,
+            "category": category,
+            "datetime": date_now,
+            "name": product_name,
+            "pic": None,
+            "price": price,
+            "quantity": product_quantity,
+            "unit_price": None,
+        }
+
+        #return all the items in the page
+        arr.append(obj)
+
+    yield from arr
+
+
 def make_url_header(product_categories: list[str], supermarket: str) -> list[str]:
-    supermarket_url_map = {"woolworths": [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]}
+    supermarket_url_map = {"woolworths": [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]
+                            ,"coles": [f'https://shop.coles.com.au/a/national/everything/search/{item}?pageNumber=' for item in product_categories]
+                        }
 
     try:
         yield from supermarket_url_map[supermarket.lower()]
@@ -94,6 +143,16 @@ def make_url_header(product_categories: list[str], supermarket: str) -> list[str
 def main(product_categories: list[str], driver, supermarket: str, 
         save_html: bool=False):
 
+    product_info_supermarket_dict = {"woolworths": ('div', {'class': 'shelfProductTile-information'})
+                                    ,"coles": ('header', {'class': 'product-header'})
+                                    }
+
+    supermarket = supermarket.lower()
+
+    if supermarket not in product_info_supermarket_dict.keys():
+        msg = f"Expected supermarket to be in {product_info_supermarket_dict.keys()}. Got {supermarket}."
+        raise ValueError(msg)
+    
     url_header = make_url_header(product_categories, supermarket)
     shopping_list = pd.DataFrame()
 
@@ -119,21 +178,28 @@ def main(product_categories: list[str], driver, supermarket: str,
                 with open(str(DATA / "raw" / f"{url.split('/')[-1]}.html"), 'w') as f:
                     f.write(str(page_soup))
 
-            container_soup = page_soup.findAll(
-                'div', {'class': 'shelfProductTile-information'})
+            container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])
 
             n_items = len(container_soup)
             print(f'Total items in this page: {n_items}')
             print('')
 
-            if(n_items != 0):
+            if (n_items != 0) & (supermarket == "woolworths"):
                 pattern = '“([^"]*)”'
                 category = page_soup.find(
                     'h1', {'class': 'searchContainer-title'}).text.strip()
-                products_list = scrapping(container_soup, re.findall(pattern, category)[0])
+                products_list = woolworths_scrapping(container_soup, re.findall(pattern, category)[0])
+            
+            elif (supermarket == "coles"):
+                pattern = re.compile(r"https://shop.coles.com.au/a/national/everything/search/(.*)\WpageNumber=", re.IGNORECASE)
+                products_list = coles_scrapping(container_soup, re.search(pattern, url).group(1))
 
-                for product in products_list:
-                    shopping_list = pd.concat([shopping_list, pd.DataFrame(product, index=[0])])
+            else:
+                continue
+
+            for product in products_list:
+                shopping_list = pd.concat([shopping_list, pd.DataFrame(product, index=[0])])
+
             i = i + 1
 
     shopping_list["supermarket"] = supermarket
