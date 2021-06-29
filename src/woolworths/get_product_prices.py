@@ -10,6 +10,7 @@ References:
     [1] https://github.com/nguyenhailong253/grosaleries-web-scrapers
 """
 
+import argparse
 import datetime
 import json
 import re
@@ -18,16 +19,17 @@ import sys
 from pathlib import Path
 from time import sleep
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from bs4 import BeautifulSoup as soup
-from selenium import webdriver
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
                                 stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
 DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
+
+from src.base import convert_datetime, make_webdriver, argparse_dtype_converter
 
 
 def scrapping(container_soup, category):
@@ -80,60 +82,44 @@ def scrapping(container_soup, category):
     return arr, len(containers)
 
 
-# convert datetime format to fit json
-def myconverter(o):
-    if isinstance(o, datetime.datetime):
-        return o.__str__()
+def make_url_header(product_categories: list[str], supermarket: str) -> list[str]:
+    supermarket_url_map = {"woolworths": [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]}
+
+    try:
+        yield from supermarket_url_map[supermarket]
+
+    except KeyError:
+        msg = f"Expected supermarket to be either {supermarket_url_map.keys()}."\
+              f"Got {supermarket}"
+        raise ValueError(msg)
 
 
-def make_webdriver():
-    # adding webdriver options
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--profile-directory=Default')
-    options.add_argument('--user-data-dir=~/.config/google-chrome')
-    return webdriver.Chrome(options=options)
+def main(product_categories: list[str], driver, save_html: bool=False, 
+        supermarket: str="woolworths"):
 
-
-def make_url_header(product_categories: list[str]):
-    return [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]
-
-
-def main(product_categories: list[str], driver):
-    # contain full list details for woolies
-    full_list = []
-    seller = {
-        "seller":
-        {"name": "Woolsworth",
-        "description": "Woolsworth Supermarket",
-        "url": "https://www.woolsworth.com.au",
-        "added_datetime": None
-        }
-    }
-    full_list.append(seller)
-    arr = []  # used to store every object
-
-    url_header = make_url_header(product_categories)
+    url_header = make_url_header(product_categories, supermarket)
 
     # scrapping for each section selected in the list
-    for header in url_header:
+    for url in url_header:
         n_items = 1
         i = 1
 
         while(n_items != 0):
-            url = header + str(i)
-            print('page ' + str(i) + ": " + url)
+            url = url + str(i)
+            print(f"Reading page {i}: {url} ...")
             driver.get(url)
+            print("Done.")
+
+            print(f"Waiting 10 s ...")
             sleep(10)
+            print("Done.")
+
             html = driver.page_source
             page_soup = soup(html, 'html.parser')
 
-            with open("woolies.html", 'w') as f:
-                f.write(str(page_soup))
+            if save_html:
+                with open(str(DATA / "raw" / f"{url}.html"), 'w') as f:
+                    f.write(str(page_soup))
 
             container_soup = page_soup.findAll(
                 'div', {'class': 'shelfProductTile-information'})
@@ -158,11 +144,15 @@ def main(product_categories: list[str], driver):
 
     # write a json file on all items
     with open(str(DATA / "raw" / f'woolworths.json'), 'w') as outfile:
-        json.dump(full_list, outfile, default=myconverter)
+        json.dump(full_list, outfile, default=convert_datetime)
 
     return pd.DataFrame.from_dict(full_list[1]['products'])
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=f"Runs script with arguments")
+    parser.add_argument("-s", "--save_html", dest="save_html", type=argparse_dtype_converter
+                        ,help="Save requested html files.")
+
     product_categories = ["milk", "eggs", "banana", "nappies"]
     driver = make_webdriver()
     main(product_categories, driver)
