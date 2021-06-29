@@ -3,7 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,linux,windows,latex,python,jupyternotebooks,visualstudiocode,pycharm
 
 ## Folders ##
-cloned/*
+clonned/*
 data/*
 
 ### JupyterNotebooks ###
