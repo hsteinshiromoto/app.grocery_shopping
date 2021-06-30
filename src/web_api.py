@@ -22,8 +22,12 @@ def make_webdriver(user_agent: str="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--profile-directory=Default')
     options.add_argument('--user-data-dir=.temp/config/google-chrome')
-    options.add_argument(r"user-data-dir=.temp/cookies/test") 
-    return webdriver.Chrome(options=options)
+
+    # Capabilities are necessary to get response code
+    capabilities = DesiredCapabilities.CHROME.copy()
+    capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}
+    
+    return webdriver.Chrome(options=options, desired_capabilities=capabilities)
     
 
 def get_status(webdriver: webdriver) -> int:
