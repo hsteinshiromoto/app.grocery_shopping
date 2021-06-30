@@ -29,7 +29,7 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 from src.base import convert_datetime,  argparse_dtype_converter
-from src.web_api import make_webdriver, get_status
+from src.web_api import make_webdriver, get_status, HTTPResponseError
 
 def woolworths_scrapping(container_soup, category):  
     
@@ -167,7 +167,7 @@ def main(product_categories: list[str], driver, supermarket: str,
             status_code = get_status(driver)
 
             if status_code != 200:
-                raise ValueError(status_code)
+                raise HTTPResponseError(status_code)
 
             html = driver.page_source
             page_soup = soup(html, 'html.parser')
