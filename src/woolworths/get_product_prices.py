@@ -164,17 +164,16 @@ def main(product_categories: list[str], driver, supermarket: str,
             sleep(10)
             print("Done.")
 
-            status_code = get_status(driver)
-
-            if status_code != 200:
-                raise HTTPResponseError(status_code)
-
             html = driver.page_source
             page_soup = soup(html, 'html.parser')
 
-            if save_html:
+            status_code = get_status(driver)
+
+            if status_code != 200:
                 with open(str(DATA / "raw" / f"{supermarket}.html"), 'w') as f:
                     f.write(str(page_soup))
+                    
+                raise HTTPResponseError(status_code)
 
             container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])
 
