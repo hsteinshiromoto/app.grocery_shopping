@@ -170,7 +170,7 @@ def main(product_categories: list[str], driver, supermarket: str,
             status_code = get_status(driver)
 
             if status_code != 200:
-                with open(str(DATA / "raw" / f"{supermarket}.html"), 'w') as f:
+                with open(str(DATA / "raw" / f"{supermarket}_{status_code}.html"), 'w') as f:
                     f.write(str(page_soup))
                     
                 raise HTTPResponseError(status_code)
