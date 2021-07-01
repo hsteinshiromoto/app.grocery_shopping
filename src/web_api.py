@@ -11,7 +11,7 @@ class HTTPResponseError(WebDriverException):
         super().__init__(message)
 
 
-def make_webdriver(user_agent: str="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0"):
+def make_webdriver(user_agent: str="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"):
     # adding webdriver options
     options = webdriver.ChromeOptions()
     # Necessary to avoid bugs
@@ -24,7 +24,6 @@ def make_webdriver(user_agent: str="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15
     # options.add_argument("--start-maximized") # Unnecessary?
     # options.add_argument('--disable-gpu') # Unnecessary ?
     # options.add_argument('--disable-dev-shm-usage') # Unnecessary ?
-
     # options.add_argument('--user-data-dir=.temp/config/google-chrome') # Unnecessary ?
 
     # Capabilities are necessary to get response code
