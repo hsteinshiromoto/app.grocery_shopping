@@ -1,6 +1,4 @@
-from time import sleep
 import subprocess
-import sys
 from pathlib import Path
 from time import sleep
 
@@ -9,7 +7,8 @@ PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
 DATA = PROJECT_ROOT / "data"
 
 from src.get_prices import make_url_header
-from src.web_api import make_webdriver, get_status
+from src.web_api import get_status, make_webdriver
+
 
 def get_supermarket_response(supermarket):
     for url in make_url_header(["milk"], supermarket):
