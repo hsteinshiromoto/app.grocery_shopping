@@ -11,7 +11,7 @@ class HTTPResponseError(WebDriverException):
         super().__init__(message)
 
 
-def make_webdriver(user_agent: str="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"):
+def make_webdriver(user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"):
     # adding webdriver options
     options = webdriver.ChromeOptions()
     # Necessary to avoid bugs
