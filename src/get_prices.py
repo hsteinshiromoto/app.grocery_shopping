@@ -134,8 +134,8 @@ def make_url_header(product_categories: list[str], supermarket: str) -> list[str
         raise ValueError(msg)
 
 
-def main(product_categories: list[str], driver, supermarket: str, 
-        save_html: bool=False, iteration_wait_time: int=10):
+def main(product_categories: list[str], driver, supermarket: str
+        ,iteration_wait_time: int=10):
 
     product_info_supermarket_dict = {"woolworths": ('div', {'class': 'shelfProductTile-information'})
                                     ,"coles": ('header', {'class': 'product-header'})
@@ -157,7 +157,7 @@ def main(product_categories: list[str], driver, supermarket: str,
 
         while(n_items != 0):
             url = url + str(i)
-            
+
             try:
                 print(f"Reading page {i}: {url} ...")
                 html = get_page_source(driver, url)
@@ -202,8 +202,6 @@ def main(product_categories: list[str], driver, supermarket: str,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
-    parser.add_argument("-s", "--save_html", dest="save_html", type=argparse_dtype_converter
-                        ,help="Save requested html files.")
     parser.add_argument("-m", "--supermarket", dest="supermarket", type=str
                         ,help="Supermarket of choice")
 
@@ -211,4 +209,4 @@ if __name__ == "__main__":
 
     product_categories = ["milk", "eggs", "banana", "nappies"]
     driver = make_webdriver()
-    main(product_categories, driver, args.supermarket, args.save_html)
+    main(product_categories, driver, args.supermarket)
