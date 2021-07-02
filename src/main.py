@@ -22,6 +22,7 @@ def pre_process(data: pd.DataFrame):
 
     return data
 
+
 def main(product_categories: list[str], supermarkets_list: list[str]=["woolworths", "coles"]):
 
     data = pd.DataFrame()
@@ -43,6 +44,7 @@ def main(product_categories: list[str], supermarkets_list: list[str]=["woolworth
     supermarket_comparison = agg_price.groupby(["supermarket"])["average price"].sum()
 
     return supermarket_comparison
+
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies"]
