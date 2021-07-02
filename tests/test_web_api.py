@@ -10,18 +10,19 @@ from src.get_prices import make_url_header
 from src.web_api import get_status, make_webdriver
 
 
-def get_supermarket_response(supermarket):
+def get_supermarket_response(browser, supermarket):
     for url in make_url_header(["milk"], supermarket):
-        driver = make_webdriver()
-        driver.get(str(url) + "1")
+        browser.get(str(url) + "1")
         
         print(f"Waiting 10 s ...")
         sleep(10)
         print("Done.")
-    return get_status(driver)
+    return get_status(browser)
 
 def test_woolworths_response():
-    assert get_supermarket_response("woolworths") == 200
+    browser = make_webdriver()
+    assert get_supermarket_response(browser, "woolworths") == 200
 
 def test_coles_response():
-    assert get_supermarket_response("coles") == 200
+    browser = make_webdriver()
+    assert get_supermarket_response(browser, "coles") == 200
