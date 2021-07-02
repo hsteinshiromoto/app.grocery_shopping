@@ -75,7 +75,8 @@ def get_page_source(driver: webdriver, url: str):
     if status_code != 200:
         with open(str(DATA / "raw" / f"{status_code}.html"), 'w') as f:
             f.write(str(output))
-            
-        raise HTTPResponseError(status_code)
+        
+        msg = f"Expectes status = 200. Got {status_code}."
+        raise HTTPResponseError(msg)
 
     return driver.page_source

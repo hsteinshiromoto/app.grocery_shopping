@@ -11,10 +11,11 @@ References:
 """
 
 import argparse
-from datetime import datetime
 import re
 import subprocess
 import sys
+import traceback
+from datetime import datetime
 from pathlib import Path
 from time import sleep
 
@@ -29,7 +30,7 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 from src.base import argparse_dtype_converter
-from src.web_api import HTTPResponseError, make_webdriver, get_page_source
+from src.web_api import HTTPResponseError, get_page_source, make_webdriver
 
 
 def woolworths_scrapping(container_soup, category):  
@@ -170,11 +171,13 @@ def main(product_categories: list[str], driver, supermarket: str
                 print("Done.")
             
             except HTTPResponseError:
-                continue
+                traceback.print_exc()
+                break
 
-            print(f"Waiting {iteration_wait_time}s ...")
-            sleep(iteration_wait_time)
-            print("Done.")
+            finally:
+                print(f"Waiting {iteration_wait_time}s ...")
+                sleep(iteration_wait_time)
+                print("Done.")
 
             page_soup = soup(html, 'html.parser')
             container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])

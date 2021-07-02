@@ -1,10 +1,9 @@
-import argparse
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 
 import pandas as pd
-from selenium import webdriver
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
                                 stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
@@ -23,13 +22,19 @@ def pre_process(data: pd.DataFrame):
     return data
 
 
-def main(product_categories: list[str], supermarkets_list: list[str]=["woolworths", "coles"]):
+def main(product_categories: list[str], supermarkets_list: list[str]=["coles", "woolworths"]):
 
     data = pd.DataFrame()
     driver = make_webdriver()
 
     for supermarket in supermarkets_list:
-        shopping_list = gp.main(product_categories, driver, supermarket)
+        try:
+            shopping_list = gp.main(product_categories, driver, supermarket)
+
+        except ValueError:
+            shopping_list = pd.DataFrame()
+            traceback.print_exc()
+            pass
 
         data = pd.concat([data, shopping_list])
 
