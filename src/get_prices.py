@@ -28,7 +28,8 @@ DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
 
-from src.base import convert_datetime, make_webdriver, argparse_dtype_converter
+from src.base import argparse_dtype_converter
+from src.web_api import HTTPResponseError, make_webdriver, get_page_source
 
 
 def woolworths_scrapping(container_soup, category):  
@@ -45,21 +46,20 @@ def woolworths_scrapping(container_soup, category):
         date_now = datetime.now()        
 
         # check price and availability of each item
-        if(container.find('span', {'class':'price-dollars'})):
-            price_dollar = container.find('span',{'class':'price-dollars'})
-            price_cent = container.find('span', {'class': 'price-cents'})
-            price = price_dollar.text + '.' + price_cent.text
+        price_dollar = container.find('span',{'class':'price-dollars'})
+        price_cent = container.find('span', {'class': 'price-cents'})
 
-        else:
-            price = np.nan
+        try:
+            price = float(price_dollar.text + '.' + price_cent.text)
+
+        except AttributeError:
             availability = False
 
-        if(container.find('div', {'class': 'shelfProductTile-cupPrice'})):
+        try: 
             unit_price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
-        
-        else:
+            
+        except AttributeError:
             unit_price = np.nan
-            unit_availability = False
 
         obj = {
             "availability": availability,
@@ -140,8 +140,8 @@ def make_url_header(product_categories: list[str], supermarket: str) -> list[str
         raise ValueError(msg)
 
 
-def main(product_categories: list[str], driver, supermarket: str, 
-        save_html: bool=False):
+def main(product_categories: list[str], driver, supermarket: str
+        ,iteration_wait_time: int=10):
 
     product_info_supermarket_dict = {"woolworths": ('div', {'class': 'shelfProductTile-information'})
                                     ,"coles": ('header', {'class': 'product-header'})
@@ -150,7 +150,7 @@ def main(product_categories: list[str], driver, supermarket: str,
     supermarket = supermarket.lower()
 
     if supermarket not in product_info_supermarket_dict.keys():
-        msg = f"Expected supermarket to be in {product_info_supermarket_dict.keys()}. Got {supermarket}."
+        msg = f"Expected supermarket to be {product_info_supermarket_dict.keys()}. Got {supermarket}."
         raise ValueError(msg)
     
     url_header = make_url_header(product_categories, supermarket)
@@ -163,23 +163,21 @@ def main(product_categories: list[str], driver, supermarket: str,
 
         while(n_items != 0):
             url = url + str(i)
-            print(f"Reading page {i}: {url} ...")
-            driver.get(url)
+
+            try:
+                print(f"Reading page {i}: {url} ...")
+                html = get_page_source(driver, url)
+                print("Done.")
+            
+            except HTTPResponseError:
+                continue
+
+            print(f"Waiting {iteration_wait_time}s ...")
+            sleep(iteration_wait_time)
             print("Done.")
 
-            print(f"Waiting 10 s ...")
-            sleep(10)
-            print("Done.")
-
-            html = driver.page_source
             page_soup = soup(html, 'html.parser')
-
-            if save_html:
-                with open(str(DATA / "raw" / f"{supermarket}.html"), 'w') as f:
-                    f.write(str(page_soup))
-
             container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])
-
             n_items = len(container_soup)
             print(f'Total items in this page: {n_items}')
             print('')
@@ -204,14 +202,17 @@ def main(product_categories: list[str], driver, supermarket: str,
 
     shopping_list["supermarket"] = supermarket
 
+    if shopping_list.empty:
+        msg = f"Expected {supermarket} shopping list to be filled. Got empty."
+        raise ValueError(msg)
+ 
     shopping_list.to_csv(str(DATA / "raw" / f"{supermarket}.csv"), index=False)
 
     return shopping_list
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
-    parser.add_argument("-s", "--save_html", dest="save_html", type=argparse_dtype_converter
-                        ,help="Save requested html files.")
     parser.add_argument("-m", "--supermarket", dest="supermarket", type=str
                         ,help="Supermarket of choice")
 
@@ -219,4 +220,4 @@ if __name__ == "__main__":
 
     product_categories = ["milk", "eggs", "banana", "nappies"]
     driver = make_webdriver()
-    main(product_categories, driver, args.supermarket, args.save_html)
+    main(product_categories, driver, args.supermarket)

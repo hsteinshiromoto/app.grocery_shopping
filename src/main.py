@@ -1,5 +1,4 @@
-import json
-import re
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -13,38 +12,28 @@ DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
 
-import src.coles.get_product_prices as coles
-import src.woolworths.get_product_prices as woolies
-
-# with open(str(DATA / "raw" / "coles.json")) as json_file:
-#     coles = json.load(json_file)
-
-# with open(str(DATA / "raw" / "woolworths.json")) as json_file:
-#     woolies = json.load(json_file)
+import src.get_prices as gp
+from src.web_api import make_webdriver
 
 
-def make_webdriver():
-    # adding webdriver options
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--profile-directory=Default')
-    options.add_argument('--user-data-dir=~/.config/google-chrome')
-    return webdriver.Chrome(options=options)
+def pre_process(data: pd.DataFrame):
 
-
-def main(product_categories, driver):
-
-    coles_data = coles.main(product_categories, driver)
-    coles_data["supermarket"] = "Coles"
-    woolies_data = woolies.main(product_categories, driver)
-    woolies_data["supermarket"] = "Woolworths"
-
-    data = pd.concat([coles_data, woolies_data])
     data['price'] = pd.to_numeric(data['price'], errors='coerce')
+
+    return data
+
+
+def main(product_categories: list[str], supermarkets_list: list[str]=["woolworths", "coles"]):
+
+    data = pd.DataFrame()
+    driver = make_webdriver()
+
+    for supermarket in supermarkets_list:
+        shopping_list = gp.main(product_categories, driver, supermarket)
+
+        data = pd.concat([data, shopping_list])
+
+    data = pre_process(data)
 
     data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
 
@@ -54,7 +43,9 @@ def main(product_categories, driver):
     # Agregate to grocery list
     supermarket_comparison = agg_price.groupby(["supermarket"])["average price"].sum()
 
+    return supermarket_comparison
+
+
 if __name__ == "__main__":
-    product_categories = ["milk", "eggs", "banana", "nappies"]
-    driver = make_webdriver()
-    main(product_categories, driver)
+    product_categories = ["full cream milk", "eggs", "banana", "nappies"]
+    main(product_categories)
