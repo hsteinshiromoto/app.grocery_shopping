@@ -27,10 +27,10 @@ def make_webdriver(user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) App
     options.add_argument('--profile-directory=Default')
 
     # Maybe Unnecessary
-    # options.add_argument("--start-maximized") # Unnecessary?
-    # options.add_argument('--disable-gpu') # Unnecessary ?
-    # options.add_argument('--disable-dev-shm-usage') # Unnecessary ?
-    # options.add_argument('--user-data-dir=.temp/config/google-chrome') # Unnecessary ?
+    options.add_argument("--start-maximized") # Unnecessary?
+    options.add_argument('--disable-gpu') # Unnecessary ?
+    options.add_argument('--disable-dev-shm-usage') # Unnecessary ?
+    options.add_argument('--user-data-dir=.temp/config/google-chrome') # Unnecessary ?
 
     # Capabilities are necessary to get response code
     capabilities = DesiredCapabilities.CHROME.copy()
