@@ -144,7 +144,7 @@ def main(product_categories: list[str], driver, supermarket: str
     supermarket = supermarket.lower()
 
     if supermarket not in product_info_supermarket_dict.keys():
-        msg = f"Expected supermarket to be in {product_info_supermarket_dict.keys()}. Got {supermarket}."
+        msg = f"Expected supermarket to be {product_info_supermarket_dict.keys()}. Got {supermarket}."
         raise ValueError(msg)
     
     url_header = make_url_header(product_categories, supermarket)
@@ -196,9 +196,14 @@ def main(product_categories: list[str], driver, supermarket: str
 
     shopping_list["supermarket"] = supermarket
 
+    if shopping_list.empty:
+        msg = f"Expected {supermarket} shopping list to be filled. Got empty."
+        raise ValueError(msg)
+ 
     shopping_list.to_csv(str(DATA / "raw" / f"{supermarket}.csv"), index=False)
 
     return shopping_list
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
