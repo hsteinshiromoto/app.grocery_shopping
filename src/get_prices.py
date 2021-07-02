@@ -28,8 +28,9 @@ DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
 
-from src.base import convert_datetime,  argparse_dtype_converter
-from src.web_api import make_webdriver, get_status, HTTPResponseError
+from src.base import argparse_dtype_converter
+from src.web_api import HTTPResponseError, make_webdriver, get_page_source
+
 
 def woolworths_scrapping(container_soup, category):  
     
@@ -134,7 +135,7 @@ def make_url_header(product_categories: list[str], supermarket: str) -> list[str
 
 
 def main(product_categories: list[str], driver, supermarket: str, 
-        save_html: bool=False):
+        save_html: bool=False, iteration_wait_time: int=10):
 
     product_info_supermarket_dict = {"woolworths": ('div', {'class': 'shelfProductTile-information'})
                                     ,"coles": ('header', {'class': 'product-header'})
@@ -156,27 +157,21 @@ def main(product_categories: list[str], driver, supermarket: str,
 
         while(n_items != 0):
             url = url + str(i)
-            print(f"Reading page {i}: {url} ...")
-            driver.get(url)
+            
+            try:
+                print(f"Reading page {i}: {url} ...")
+                html = get_page_source(driver, url)
+                print("Done.")
+            
+            except HTTPResponseError:
+                continue
+
+            print(f"Waiting {iteration_wait_time}s ...")
+            sleep(iteration_wait_time)
             print("Done.")
 
-            print(f"Waiting 10 s ...")
-            sleep(10)
-            print("Done.")
-
-            html = driver.page_source
             page_soup = soup(html, 'html.parser')
-
-            status_code = get_status(driver)
-
-            if status_code != 200:
-                with open(str(DATA / "raw" / f"{supermarket}_{status_code}.html"), 'w') as f:
-                    f.write(str(page_soup))
-                    
-                raise HTTPResponseError(status_code)
-
             container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket])
-
             n_items = len(container_soup)
             print(f'Total items in this page: {n_items}')
             print('')
