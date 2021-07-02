@@ -1,9 +1,15 @@
 import json
+import subprocess
+from pathlib import Path
 
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+
+PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
+                                stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
+DATA = PROJECT_ROOT / "data"
 
 
 class HTTPResponseError(WebDriverException):
@@ -57,3 +63,19 @@ def get_status(webdriver: webdriver) -> int:
                     return d['message']['params']['response']['status']
             except:
                 pass
+
+
+def get_page_source(driver: webdriver, url: str):
+    
+    driver.get(url)
+    status_code = get_status(driver)
+
+    output = driver.page_source
+
+    if status_code != 200:
+        with open(str(DATA / "raw" / f"{status_code}.html"), 'w') as f:
+            f.write(str(output))
+            
+        raise HTTPResponseError(status_code)
+
+    return driver.page_source
