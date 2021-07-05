@@ -40,13 +40,14 @@ class API(object):
         
         self.driver = webdriver.Chrome(options=options, desired_capabilities=capabilities)
 
+
     def get_status(self) -> int:
         """Get HTTP status code
 
         References:
             [1] https://stackoverflow.com/questions/5799228/how-to-get-status-code-by-using-selenium-py-python-code
         """
-        logs = self.webdriver.get_log('performance')
+        logs = self.driver.get_log('performance')
 
         for log in logs:
             if log['message']:

@@ -213,7 +213,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
                 print("Done.")
 
             page_soup = soup(html, 'html.parser')
-            container_soup = page_soup.findAll(*product_info_supermarket_dict[supermarket_name])
+            container_soup = page_soup.findAll(*supermarket.product_info_container())
             n_items = len(container_soup)
             print(f'Total items in this page: {n_items}')
             print('')
