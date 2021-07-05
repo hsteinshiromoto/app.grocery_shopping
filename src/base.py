@@ -1,5 +1,41 @@
 import argparse
 from datetime import datetime
+from enum import Enum, auto
+
+
+class SupermarketNames(Enum):
+    """Supermarket
+
+    Args:
+        Enum ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
+    woolworths = auto()
+    coles = auto()
+    aldi = auto()
+    iga = auto()
+
+
+def str_to_supermarketnames(supermarket: str) -> SupermarketNames:
+    if supermarket.lower() == "woolworths":
+        return SupermarketNames.woolworths
+
+    elif supermarket.lower() == "coles":
+        return SupermarketNames.coles
+
+    elif supermarket.lower() == "aldi":
+        return SupermarketNames.aldi
+
+    elif supermarket.lower() == "iga":
+        return SupermarketNames.iga
+
+    else:
+        msg = f"Expected supermarket name to be either Woolworths, Coles, "\
+            f"Aldi or IGA. Got {supermarket}."
+        raise NotImplementedError(msg)
 
 
 def convert_datetime(o):

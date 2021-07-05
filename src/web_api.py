@@ -18,11 +18,8 @@ class HTTPResponseError(WebDriverException):
         super().__init__(message)
 
 
-class API(ABC):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def make_webdriver(self, user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"):
+class API(object):
+    def __init__(self, user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36") -> None:
         # adding webdriver options
         options = webdriver.ChromeOptions()
         # Necessary to avoid bugs
@@ -31,32 +28,25 @@ class API(ABC):
         options.add_argument('--headless')
         options.add_argument('--profile-directory=Default')
 
-        # Maybe Unnecessary
-        options.add_argument("--start-maximized") # Unnecessary?
-        options.add_argument('--disable-gpu') # Unnecessary ?
-        options.add_argument('--disable-dev-shm-usage') # Unnecessary ?
-        options.add_argument('--user-data-dir=.temp/config/google-chrome') # Unnecessary ?
+        # Avoid tab crashes
+        options.add_argument("--start-maximized")
+        options.add_argument('--disable-gpu')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--user-data-dir=.temp/config/google-chrome')
 
         # Capabilities are necessary to get response code
         capabilities = DesiredCapabilities.CHROME.copy()
         capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}
         
-        return webdriver.Chrome(options=options, desired_capabilities=capabilities)
-    
+        self.driver = webdriver.Chrome(options=options, desired_capabilities=capabilities)
 
-    def get_status(self, webdriver: webdriver) -> int:
+    def get_status(self) -> int:
         """Get HTTP status code
-
-        Args:
-            webdriver (webdriver): Selenium webdriver object
-
-        Returns:
-            (int): HTTP status code
 
         References:
             [1] https://stackoverflow.com/questions/5799228/how-to-get-status-code-by-using-selenium-py-python-code
         """
-        logs = webdriver.get_log('performance')
+        logs = self.webdriver.get_log('performance')
 
         for log in logs:
             if log['message']:
@@ -70,12 +60,14 @@ class API(ABC):
                     pass
 
 
-    def get_page_source(self, driver: webdriver, url: str):
+    def get_page_source(self, url: str):
         
-        driver.get(url)
-        status_code = get_status(driver)
+        print(f"Reading {url} ...")
+        self.driver.get(url)
+        print("Done")
+        status_code = self.get_status(self.driver)
 
-        output = driver.page_source
+        output = self.driver.page_source
 
         if status_code != 200:
             with open(str(DATA / "raw" / f"{status_code}.html"), 'w') as f:
@@ -84,4 +76,4 @@ class API(ABC):
             msg = f"Expectes status = 200. Got {status_code}."
             raise HTTPResponseError(msg)
 
-        return driver.page_source
+        return output
