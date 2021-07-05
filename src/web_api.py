@@ -65,7 +65,7 @@ class API(object):
         print(f"Reading {url} ...")
         self.driver.get(url)
         print("Done")
-        status_code = self.get_status(self.driver)
+        status_code = self.get_status()
 
         output = self.driver.page_source
 
