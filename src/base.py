@@ -15,8 +15,6 @@ class SupermarketNames(Enum):
 
     woolworths = auto()
     coles = auto()
-    aldi = auto()
-    iga = auto()
 
 
 def str_to_supermarketnames(supermarket: str) -> SupermarketNames:
