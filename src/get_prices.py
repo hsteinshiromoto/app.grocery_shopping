@@ -30,7 +30,7 @@ DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
 
-from src.base import SupermarketNames, str_to_supermarketnames
+from src.base import SupermarketNames, str_supermarketnames_map
 from src.web_api import HTTPResponseError, API
 
 
@@ -241,7 +241,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Runs script with arguments")
-    parser.add_argument("-s", "--supermarket", dest="supermarket", type=str_to_supermarketnames
+    parser.add_argument("-s", "--supermarket", dest="supermarket", type=str_supermarketnames_map
                         ,help="Supermarket of choice")
 
     args = parser.parse_args()

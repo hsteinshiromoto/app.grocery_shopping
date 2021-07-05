@@ -1,7 +1,7 @@
 import argparse
 from datetime import datetime
 from enum import Enum, auto
-
+from typing import Union
 
 class SupermarketNames(Enum):
     """Supermarket
@@ -17,22 +17,34 @@ class SupermarketNames(Enum):
     coles = auto()
 
 
-def str_to_supermarketnames(supermarket: str) -> SupermarketNames:
-    if supermarket.lower() == "woolworths":
-        return SupermarketNames.woolworths
+def str_supermarketnames_map(supermarket: Union[str, SupermarketNames]
+                        ,invert: bool=False) -> Union[str, SupermarketNames]:
+    """Convert supermarket objects
 
-    elif supermarket.lower() == "coles":
-        return SupermarketNames.coles
+    Args:
+        supermarket (Union[str, SupermarketNames]): Supermarket name of or name object
+        invert (bool, optional): Returns string. Defaults to False.
 
-    elif supermarket.lower() == "aldi":
-        return SupermarketNames.aldi
+    Raises:
+        NotImplementedError: Not available supermarket
 
-    elif supermarket.lower() == "iga":
-        return SupermarketNames.iga
+    Returns:
+        Union[str, SupermarketNames]: Name object
+    """
+    supermarket_name_obj_map = {"woolworths": SupermarketNames.woolworths
+                            ,"coles": SupermarketNames.coles
+                            }
 
-    else:
-        msg = f"Expected supermarket name to be either Woolworths, Coles, "\
-            f"Aldi or IGA. Got {supermarket}."
+    supermarket_obj_name_map = {obj: supermarket for supermarket, obj in supermarket_name_obj_map.items()}
+
+    try:
+        if invert:
+            return supermarket_name_obj_map[supermarket_obj_name_map]
+
+        return supermarket_name_obj_map[supermarket.lower()]
+
+    except KeyError:
+        msg = f"Expected supermarket name to be {supermarket_name_obj_map.keys()}. Got {supermarket}."
         raise NotImplementedError(msg)
 
 
