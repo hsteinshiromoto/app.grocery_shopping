@@ -41,7 +41,7 @@ class WebAPI(object):
         self.driver = webdriver.Chrome(options=options, desired_capabilities=capabilities)
 
 
-    def get_status(self) -> int:
+    def __get_status(self) -> int:
         """Get HTTP status code
 
         References:
@@ -66,7 +66,7 @@ class WebAPI(object):
         print(f"Reading {url} ...")
         self.driver.get(url)
         print("Done")
-        status_code = self.get_status()
+        status_code = self.__get_status()
 
         output = self.driver.page_source
 
