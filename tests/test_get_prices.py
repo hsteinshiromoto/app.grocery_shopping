@@ -1,10 +1,5 @@
-import argparse
-from datetime import datetime
-import re
 import subprocess
-import sys
 from pathlib import Path
-from time import sleep
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
                                 stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
