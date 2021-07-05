@@ -18,7 +18,7 @@ class HTTPResponseError(WebDriverException):
         super().__init__(message)
 
 
-class API(object):
+class WebAPI(object):
     def __init__(self, user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36") -> None:
         # adding webdriver options
         options = webdriver.ChromeOptions()

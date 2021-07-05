@@ -31,10 +31,10 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 from src.base import SupermarketNames, str_supermarketnames_map
-from src.web_api import HTTPResponseError, API
+from src.web_api import HTTPResponseError, WebAPI
 
 
-class Supermarket(ABC, API):
+class Supermarket(ABC, WebAPI):
     @abstractmethod
     def product_info_container(self):
         pass
