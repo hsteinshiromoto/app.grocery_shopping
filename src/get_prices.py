@@ -44,7 +44,11 @@ class Supermarket(ABC, API):
         pass
 
     @abstractmethod
-    def scrape(self):
+    def get_products_list(self):
+        pass
+
+    @abstractmethod
+    def scrape_products(self):
         pass
 
 
@@ -60,7 +64,13 @@ class Woolworths(Supermarket):
     def url(self, search_item: str, page_number: int=1):
         return f"https://www.woolworths.com.au/shop/search/products?searchTerm={search_item}&pageNumber={page_number}"  
 
-    def scrape(self, container_soup, category):
+    def get_products_list(self, container_soup, page_soup, search_item=None):
+        pattern = '“([^"]*)”'
+        category = page_soup.find(
+            'h1', {'class': 'searchContainer-title'}).text.strip()
+        return self.scrape_products(container_soup, re.findall(pattern, category)[0])
+
+    def scrape_products(self, container_soup, category):
         products_list = []
     
         for container in container_soup:
@@ -116,9 +126,12 @@ class Coles(Supermarket):
         return self.product_info_container
 
     def url(self, search_item: str, page_number: int=1):
-        return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"   
+        return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
+    
+    def get_products_list(self, container_soup, page_soup=None, search_item=None):
+        return self.scrape_products(container_soup, search_item)
 
-    def scrape(self, container_soup, category):
+    def scrape_products(self, container_soup, category):
         
         arr = []
         
@@ -165,20 +178,6 @@ class Coles(Supermarket):
         yield from arr
 
 
-def make_url_header(product_categories: list[str], supermarket: SupermarketNames) -> list[str]:
-    supermarket_url_map = {supermarket.woolworths: [f'https://www.woolworths.com.au/shop/search/products?searchTerm={item}&pageNumber=' for item in product_categories]
-                            ,supermarket.coles: [f'https://shop.coles.com.au/a/national/everything/search/{item}?pageNumber=' for item in product_categories]
-                        }
-
-    try:
-        yield from supermarket_url_map[supermarket]
-
-    except KeyError:
-        msg = f"Expected supermarket to be either {supermarket_url_map.keys()}."\
-              f"Got {supermarket.lower()}"
-        raise ValueError(msg)
-
-
 def main(product_categories: list[str], supermarket_name: SupermarketNames
         ,iteration_wait_time: int=10):
 
@@ -218,15 +217,8 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
             print(f'Total items in this page: {n_items}')
             print('')
 
-            if (n_items != 0) & (supermarket_name == "woolworths"):
-                pattern = '“([^"]*)”'
-                category = page_soup.find(
-                    'h1', {'class': 'searchContainer-title'}).text.strip()
-                products_list = woolworths_scrapping(container_soup, re.findall(pattern, category)[0])
-            
-            elif (supermarket_name == "coles"):
-                pattern = re.compile(r"https://shop.coles.com.au/a/national/everything/search/(.*)\WpageNumber=", re.IGNORECASE)
-                products_list = coles_scrapping(container_soup, re.search(pattern, url).group(1))
+            if (n_items != 0):
+                products_list = supermarket.get_products_list(container_soup, page_soup, product_category)                
 
             else:
                 continue
