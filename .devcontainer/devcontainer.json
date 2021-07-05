@@ -31,6 +31,9 @@
 				,hbenl.vscode-test-explorer
 				,ms-vscode.test-adapter-converter
 				,redhat.vscode-yaml
+				,codezombiech.gitignore
+				,vincaslt.highlight-matching-tag
+				,byi8220.indented-block-highlighting
 				],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
