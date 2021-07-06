@@ -64,10 +64,7 @@ class Woolworths(Supermarket):
         return f"https://www.woolworths.com.au/shop/search/products?searchTerm={search_item}&pageNumber={page_number}"  
 
     def get_products_list(self, container_soup, page_soup, search_item=None):
-        pattern = '“([^"]*)”'
-        category = page_soup.find(
-            'h1', {'class': 'searchContainer-title'}).text.strip()
-        return self.scrape_products(container_soup, re.findall(pattern, category)[0])
+        return self.scrape_products(container_soup, search_item)
 
     def scrape_products(self, container_soup, category):
         products_list = []
