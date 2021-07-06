@@ -74,7 +74,7 @@ class WebAPI(object):
             with open(str(DATA / "raw" / f"{status_code}.html"), 'w') as f:
                 f.write(str(output))
             
-            msg = f"Expectes status = 200. Got {status_code}."
+            msg = f"Expected status = 200. Got {status_code}."
             raise HTTPResponseError(msg)
 
         return output
