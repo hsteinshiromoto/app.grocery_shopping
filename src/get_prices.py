@@ -58,8 +58,7 @@ class Woolworths(Supermarket):
         self.name = SupermarketNames.woolworths
 
     def product_info_container(self):
-        self.product_info_container = ('div', {'class': 'shelfProductTile-information'})
-        return self.product_info_container
+        return ('div', {'class': 'shelfProductTile-information'})
 
     def url(self, search_item: str, page_number: int=1):
         return f"https://www.woolworths.com.au/shop/search/products?searchTerm={search_item}&pageNumber={page_number}"  
@@ -122,8 +121,7 @@ class Coles(Supermarket):
         self.name = SupermarketNames.coles
 
     def product_info_container(self):
-        self.product_info_container = ('header', {'class': 'product-header'})
-        return self.product_info_container
+        return ('header', {'class': 'product-header'})
 
     def url(self, search_item: str, page_number: int=1):
         return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
