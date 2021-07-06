@@ -44,7 +44,7 @@ class Supermarket(ABC, WebAPI):
         pass
 
     @abstractmethod
-    def get_products_list(self):
+    def get_products_list(self, container_soup, search_item: str):
         pass
 
     @abstractmethod
@@ -63,7 +63,7 @@ class Woolworths(Supermarket):
     def url(self, search_item: str, page_number: int=1):
         return f"https://www.woolworths.com.au/shop/search/products?searchTerm={search_item}&pageNumber={page_number}"  
 
-    def get_products_list(self, container_soup, page_soup, search_item=None):
+    def get_products_list(self, container_soup, search_item: str):
         return self.scrape_products(container_soup, search_item)
 
     def scrape_products(self, container_soup, category):
@@ -123,7 +123,7 @@ class Coles(Supermarket):
     def url(self, search_item: str, page_number: int=1):
         return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
     
-    def get_products_list(self, container_soup, page_soup=None, search_item=None):
+    def get_products_list(self, container_soup, search_item: str):
         return self.scrape_products(container_soup, search_item)
 
     def scrape_products(self, container_soup, category):
