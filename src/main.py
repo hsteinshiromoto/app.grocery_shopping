@@ -24,31 +24,33 @@ class EmptyDataFrameError(Exception):
 def pre_process(data: pd.DataFrame):
 
     data['price'] = pd.to_numeric(data['price'], errors='coerce')
+    data['unit_price'] = pd.to_numeric(data['unit_price'], errors='coerce')
 
     return data
 
 
 def main(product_categories: list[str]
     ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
-                                                ,SupermarketNames.woolworths]):
+                                                ,SupermarketNames.woolworths]
+    ,data: pd.DataFrame=None):
 
-    data = pd.DataFrame()
+    if data is None:
+        data = pd.DataFrame()
 
-    for supermarket_name in supermarkets_list:
-        try:
-            shopping_list = gp.main(product_categories, supermarket_name)
+        for supermarket_name in supermarkets_list:
+            try:
+                shopping_list = gp.main(product_categories, supermarket_name)
 
-        except ValueError:
-            shopping_list = pd.DataFrame()
-            warnings.warn(str(traceback.print_exc()))
-            pass
+            except ValueError:
+                shopping_list = pd.DataFrame()
+                warnings.warn(str(traceback.print_exc()))
+                pass
 
-        finally:
             data = pd.concat([data, shopping_list])
 
-    if data.empty:
-        msg = "No data was obtained."
-        raise EmptyDataFrameError(msg)
+        if data.empty:
+            msg = "No data was obtained."
+            raise EmptyDataFrameError(msg)
 
     data = pre_process(data)
 
@@ -65,4 +67,5 @@ def main(product_categories: list[str]
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies"]
-    main(product_categories)
+    data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    main(product_categories, data=data)
