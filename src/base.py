@@ -39,7 +39,7 @@ def str_supermarketnames_map(supermarket: Union[str, SupermarketNames]
 
     try:
         if invert:
-            return supermarket_name_obj_map[supermarket_obj_name_map]
+            return supermarket_obj_name_map[supermarket]
 
         return supermarket_name_obj_map[supermarket.lower()]
 
