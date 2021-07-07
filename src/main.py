@@ -23,7 +23,7 @@ class EmptyDataFrameError(Exception):
 
 def pre_process(data: pd.DataFrame):
 
-    data['price'] = pd.to_numeric(data['price'], errors='coerce')
+    data['product_price'] = pd.to_numeric(data['product_price'], errors='coerce')
     data['unit_price'] = pd.to_numeric(data['unit_price'], errors='coerce')
 
     return data
@@ -67,5 +67,6 @@ def main(product_categories: list[str]
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies"]
-    data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    data=None
     main(product_categories, data=data)
