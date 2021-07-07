@@ -36,6 +36,19 @@ from src.web_api import HTTPResponseError, WebAPI
 
 
 class Supermarket(ABC, WebAPI):
+    quote = {
+        "availability": []
+        ,"brand": []
+        ,"category": []
+        ,"datetime": []
+        ,"name": []
+        ,"pic": []
+        ,"product_price": []
+        ,"product_quantity": []
+        ,"unit_price": []
+        ,"unit_quantity": []
+    }
+
     @abstractmethod
     def product_info_container(self):
         pass
@@ -90,27 +103,25 @@ class Woolworths(Supermarket):
                 availability = False
 
             try: 
-                unit_price = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip()
+                price_per_unit = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip().replace(" ", "").split("/")
+                unit_price = float(price_per_unit[0].strip("$"))
+                unit_quantity = price_per_unit[1]
                 
             except AttributeError:
                 unit_price = np.nan
 
-            obj = {
-                "availability": availability,
-                "brand": None,
-                "category": category,
-                "datetime": date_now,
-                "name": product_name,
-                "pic": None,
-                "price": price,
-                "quantity": None,
-                "unit_price": unit_price,
-            }
+            self.quote["availability"].append(availability)
+            self.quote["brand"].append(None)
+            self.quote["category"].append(category)
+            self.quote["datetime"].append(date_now)
+            self.quote["name"].append(product_name)
+            self.quote["pic"].append(None)
+            self.quote["product_price"].append(price)
+            self.quote["product_quantity"].append(None)
+            self.quote["unit_price"].append(unit_price)
+            self.quote["unit_quantity"].append(unit_quantity)
 
-            #return all the items in the page
-            products_list.append(obj)
-
-        yield from products_list
+        return pd.DataFrame.from_dict(self.quote)
 
 
 class Coles(Supermarket):
@@ -152,26 +163,26 @@ class Coles(Supermarket):
             # check price and availability of each item
             if (container.find('span', {'class': 'dollar-value'})) :
                 price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
+                
             else:
                 price = np.nan
                 availability = False
 
-            obj = {
-                "availability": availability,
-                "brand": product_brand,
-                "category": category,
-                "datetime": date_now,
-                "name": product_name,
-                "pic": None,
-                "price": price,
-                "quantity": product_quantity,
-                "unit_price": None,
-            }
+            unit_price = None
+            unit_quantity = None
 
-            #return all the items in the page
-            arr.append(obj)
+            self.quote["availability"].append(availability)
+            self.quote["brand"].append(product_brand)
+            self.quote["category"].append(category)
+            self.quote["datetime"].append(date_now)
+            self.quote["name"].append(product_name)
+            self.quote["pic"].append(None)
+            self.quote["product_price"].append(price)
+            self.quote["product_quantity"].append(product_quantity)
+            self.quote["unit_price"].append(unit_price)
+            self.quote["unit_quantity"].append(unit_quantity)
 
-        yield from arr
+        return pd.DataFrame.from_dict(self.quote)
 
 
 def main(product_categories: list[str], supermarket_name: SupermarketNames
@@ -219,17 +230,17 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
             else:
                 continue
 
-            for product in products_list:
-                shopping_list = pd.concat([shopping_list, pd.DataFrame(product, index=[0])])
+            shopping_list = pd.concat([shopping_list, products_list])
 
             page_number = page_number + 1
 
-    shopping_list["supermarket"] = supermarket_name
+    shopping_list["supermarket"] = str_supermarketnames_map(supermarket_name, invert=True)
 
     if shopping_list.empty:
         msg = f"Expected {supermarket_name} shopping list to be filled. Got empty."
         raise ValueError(msg)
  
+    shopping_list.drop_duplicates(inplace=True)
     shopping_list.to_csv(str(DATA / "raw" / f"{supermarket_name}.csv"), index=False)
 
     return shopping_list
