@@ -15,10 +15,11 @@ import re
 import subprocess
 import sys
 import traceback
+import warnings
+from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from time import sleep
-from abc import abstractmethod, ABC
 
 import numpy as np
 import pandas as pd
@@ -198,7 +199,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
                 print("Done.")
             
             except HTTPResponseError:
-                traceback.print_exc()
+                warnings.warn(str(traceback.print_exc()))
                 break
 
             finally:
@@ -213,7 +214,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
             print('')
 
             if (n_items != 0):
-                products_list = supermarket.get_products_list(container_soup, page_soup, product_category)                
+                products_list = supermarket.get_products_list(container_soup, product_category)                
 
             else:
                 continue

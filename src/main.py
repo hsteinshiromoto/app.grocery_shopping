@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import traceback
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +13,12 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 import src.get_prices as gp
-from src.web_api import make_webdriver
+from src.base import SupermarketNames
+
+
+class EmptyDataFrameError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 def pre_process(data: pd.DataFrame):
@@ -22,21 +28,27 @@ def pre_process(data: pd.DataFrame):
     return data
 
 
-def main(product_categories: list[str], supermarkets_list: list[str]=["coles", "woolworths"]):
+def main(product_categories: list[str]
+    ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
+                                                ,SupermarketNames.woolworths]):
 
     data = pd.DataFrame()
-    driver = make_webdriver()
 
-    for supermarket in supermarkets_list:
+    for supermarket_name in supermarkets_list:
         try:
-            shopping_list = gp.main(product_categories, driver, supermarket)
+            shopping_list = gp.main(product_categories, supermarket_name)
 
         except ValueError:
             shopping_list = pd.DataFrame()
-            traceback.print_exc()
+            warnings.warn(str(traceback.print_exc()))
             pass
 
-        data = pd.concat([data, shopping_list])
+        finally:
+            data = pd.concat([data, shopping_list])
+
+    if data.empty:
+        msg = "No data was obtained."
+        raise EmptyDataFrameError(msg)
 
     data = pre_process(data)
 
