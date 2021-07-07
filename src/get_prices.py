@@ -147,7 +147,7 @@ class Coles(Supermarket):
             # initial product is available
             availability = True
             # get the date and time of the scrapping time
-            date_now = datetime.datetime.now()        
+            date_now = datetime.now()        
 
             # check price and availability of each item
             if (container.find('span', {'class': 'dollar-value'})) :
