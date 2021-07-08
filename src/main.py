@@ -52,6 +52,7 @@ def make_comparison(data, most_frequent):
     grouped["Median Unit Price"] = subset.groupby(["category", "supermarket"])["unit_price"].median()
     grouped.reset_index(inplace=True)
     grouped.merge(subset[["category", "supermarket", "unit_quantity"]], how="left", on=["category", "supermarket"]).drop_duplicates()
+    grouped = grouped.merge(most_frequent[["category", "unit_quantity"]], how="left", on="category")
 
     return grouped
 
