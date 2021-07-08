@@ -133,6 +133,7 @@ class Coles(Supermarket):
         return ('header', {'class': 'product-header'})
 
     def url(self, search_item: str, page_number: int=1):
+        search_item = search_item.replace(" ", "%20") 
         return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
     
     def get_products_list(self, container_soup, search_item: str):
@@ -253,5 +254,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    product_categories = ["milk", "eggs", "banana", "nappies"]
+    product_categories = ["full cream milk", "eggs", "banana", "nappies"]
     main(product_categories, args.supermarket)
