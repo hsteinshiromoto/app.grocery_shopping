@@ -29,6 +29,33 @@ def pre_process(data: pd.DataFrame):
     return data
 
 
+def get_most_frequent(data: pd.DataFrame, category: str="category"
+                    ,unit_quantity: str="unit_quantity"):
+    
+    grouped = data.groupby([category, unit_quantity]).count().iloc[:, 0].to_frame("Count")
+    grouped.reset_index(inplace=True)
+
+    # Get index of the original for which `Count` is higher
+    idx = grouped.groupby([category])['Count'].transform(max) == grouped['Count']
+
+    # Get most common `unit_quantity`
+    return grouped.loc[idx, :]
+
+
+def make_comparison(data, most_frequent):
+
+    mask = (data["category"].isin(most_frequent["category"].values)) & \
+            (data["unit_quantity"].isin(most_frequent["unit_quantity"].values))
+    subset = data[mask]
+
+    grouped = subset.groupby(["category", "supermarket"])["unit_price"].mean().to_frame(name="Average Unit Price")
+    grouped["Median Unit Price"] = subset.groupby(["category", "supermarket"])["unit_price"].median()
+    grouped.reset_index(inplace=True)
+    grouped.merge(subset[["category", "supermarket", "unit_quantity"]], how="left", on=["category", "supermarket"]).drop_duplicates()
+
+    return grouped
+
+
 def main(product_categories: list[str]
     ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
                                                 ,SupermarketNames.woolworths]
@@ -57,12 +84,13 @@ def main(product_categories: list[str]
     data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
 
     # Agregate to grocery list
-    agg_price = data.groupby(["category", "supermarket"])["price"].mean().to_frame("average price").reset_index()
+    most_frequent = get_most_frequent(data)
+    comparison_df = make_comparison(data, most_frequent)
 
     # Agregate to grocery list
-    supermarket_comparison = agg_price.groupby(["supermarket"])["average price"].sum()
+    comparison_df.to_csv(str(DATA / "processed" / "data.csv"), index=False)
 
-    return supermarket_comparison
+    return comparison_df
 
 
 if __name__ == "__main__":
