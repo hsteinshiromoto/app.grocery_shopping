@@ -52,6 +52,7 @@ def make_comparison(data, most_frequent):
     grouped["Median Unit Price"] = subset.groupby(["category", "supermarket"])["unit_price"].median()
     grouped.reset_index(inplace=True)
     grouped.merge(subset[["category", "supermarket", "unit_quantity"]], how="left", on=["category", "supermarket"]).drop_duplicates()
+    grouped = grouped.merge(most_frequent[["category", "unit_quantity"]], how="left", on="category")
 
     return grouped
 
@@ -94,7 +95,7 @@ def main(product_categories: list[str]
 
 
 if __name__ == "__main__":
-    product_categories = ["full cream milk", "eggs", "banana", "nappies"]
+    product_categories = ["full cream milk", "eggs", "banana", "nappies", "sour cream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes"]
     # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
     data=None
     main(product_categories, data=data)

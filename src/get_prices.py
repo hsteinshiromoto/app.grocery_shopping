@@ -133,6 +133,69 @@ class Coles(Supermarket):
         return ('header', {'class': 'product-header'})
 
     def url(self, search_item: str, page_number: int=1):
+        search_item = search_item.replace(" ", "%20") 
+        return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
+    
+    def get_products_list(self, container_soup, search_item: str):
+        return self.scrape_products(container_soup, search_item)
+
+    def scrape_products(self, container_soup, category):
+        
+        arr = []
+        
+        for container in container_soup:
+            # get the product name
+            product_name = container.find("span", {"class": "product-name"}).text.strip()
+            product_brand = container.find("span", {"class": "product-brand"}).text.strip()
+            package_sizes = container.find_all("span", {"class": "accessibility-inline"})
+            pattern = re.compile(r"\d+\W{0,1}\w+", re.IGNORECASE)
+            valid_sizes = [re.search(pattern, i.text.rstrip()) for i in package_sizes]
+            product_quantity = [x for x in valid_sizes if x is not None]
+            try:
+                product_quantity = product_quantity[0].group(0)
+
+            except IndexError:
+                product_quantity = None
+            # initial product is available
+            availability = True
+            # get the date and time of the scrapping time
+            date_now = datetime.now()        
+
+            # check price and availability of each item
+            if (container.find('span', {'class': 'dollar-value'})) :
+                price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
+                
+            else:
+                price = np.nan
+                availability = False
+
+            unit_price = None
+            unit_quantity = None
+
+            self.quote["availability"].append(availability)
+            self.quote["brand"].append(product_brand)
+            self.quote["category"].append(category)
+            self.quote["datetime"].append(date_now)
+            self.quote["name"].append(product_name)
+            self.quote["pic"].append(None)
+            self.quote["product_price"].append(price)
+            self.quote["product_quantity"].append(product_quantity)
+            self.quote["unit_price"].append(unit_price)
+            self.quote["unit_quantity"].append(unit_quantity)
+
+        return pd.DataFrame.from_dict(self.quote)
+
+
+class HarrisFarm(Supermarket):
+    def __init__(self) -> None:
+        super().__init__()
+        self.name = SupermarketNames.coles
+
+    def product_info_container(self):
+        return ('header', {'class': 'product-header'})
+
+    def url(self, search_item: str, page_number: int=1):
+        search_item = search_item.replace(" ", "%20") 
         return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
     
     def get_products_list(self, container_soup, search_item: str):
@@ -253,5 +316,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    product_categories = ["milk", "eggs", "banana", "nappies"]
+    product_categories = ["full cream milk", "eggs", "banana", "nappies"]
     main(product_categories, args.supermarket)

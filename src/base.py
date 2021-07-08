@@ -33,6 +33,7 @@ def str_supermarketnames_map(supermarket: Union[str, SupermarketNames]
     """
     supermarket_name_obj_map = {"woolworths": SupermarketNames.woolworths
                             ,"coles": SupermarketNames.coles
+                            ,"harris_farm": SupermarketNames.harris_farm
                             }
 
     supermarket_obj_name_map = {obj: supermarket for supermarket, obj in supermarket_name_obj_map.items()}
