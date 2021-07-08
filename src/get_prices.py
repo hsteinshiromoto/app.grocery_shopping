@@ -195,8 +195,7 @@ class HarrisFarm(Supermarket):
         return ('header', {'class': 'product-header'})
 
     def url(self, search_item: str, page_number: int=1):
-        search_item = search_item.replace(" ", "%20") 
-        return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
+        return f"https://www.harrisfarm.com.au/search?q={search_item}&hPP=24&idx=shopify_products&p={page_number}&is_v=1"
     
     def get_products_list(self, container_soup, search_item: str):
         return self.scrape_products(container_soup, search_item)
