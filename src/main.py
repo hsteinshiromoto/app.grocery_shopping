@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import traceback
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -12,45 +13,88 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 import src.get_prices as gp
-from src.web_api import make_webdriver
+from src.base import SupermarketNames
+
+
+class EmptyDataFrameError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 def pre_process(data: pd.DataFrame):
 
-    data['price'] = pd.to_numeric(data['price'], errors='coerce')
+    data['product_price'] = pd.to_numeric(data['product_price'], errors='coerce')
+    data['unit_price'] = pd.to_numeric(data['unit_price'], errors='coerce')
 
     return data
 
 
-def main(product_categories: list[str], supermarkets_list: list[str]=["coles", "woolworths"]):
+def get_most_frequent(data: pd.DataFrame, category: str="category"
+                    ,unit_quantity: str="unit_quantity"):
+    
+    grouped = data.groupby([category, unit_quantity]).count().iloc[:, 0].to_frame("Count")
+    grouped.reset_index(inplace=True)
 
-    data = pd.DataFrame()
-    driver = make_webdriver()
+    # Get index of the original for which `Count` is higher
+    idx = grouped.groupby([category])['Count'].transform(max) == grouped['Count']
 
-    for supermarket in supermarkets_list:
-        try:
-            shopping_list = gp.main(product_categories, driver, supermarket)
+    # Get most common `unit_quantity`
+    return grouped.loc[idx, :]
 
-        except ValueError:
-            shopping_list = pd.DataFrame()
-            traceback.print_exc()
-            pass
 
-        data = pd.concat([data, shopping_list])
+def make_comparison(data, most_frequent):
+
+    mask = (data["category"].isin(most_frequent["category"].values)) & \
+            (data["unit_quantity"].isin(most_frequent["unit_quantity"].values))
+    subset = data[mask]
+
+    grouped = subset.groupby(["category", "supermarket"])["unit_price"].mean().to_frame(name="Average Unit Price")
+    grouped["Median Unit Price"] = subset.groupby(["category", "supermarket"])["unit_price"].median()
+    grouped.reset_index(inplace=True)
+    grouped.merge(subset[["category", "supermarket", "unit_quantity"]], how="left", on=["category", "supermarket"]).drop_duplicates()
+
+    return grouped
+
+
+def main(product_categories: list[str]
+    ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
+                                                ,SupermarketNames.woolworths]
+    ,data: pd.DataFrame=None):
+
+    if data is None:
+        data = pd.DataFrame()
+
+        for supermarket_name in supermarkets_list:
+            try:
+                shopping_list = gp.main(product_categories, supermarket_name)
+
+            except ValueError:
+                shopping_list = pd.DataFrame()
+                warnings.warn(str(traceback.print_exc()))
+                pass
+
+            data = pd.concat([data, shopping_list])
+
+        if data.empty:
+            msg = "No data was obtained."
+            raise EmptyDataFrameError(msg)
 
     data = pre_process(data)
 
     data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
 
     # Agregate to grocery list
-    agg_price = data.groupby(["category", "supermarket"])["price"].mean().to_frame("average price").reset_index()
+    most_frequent = get_most_frequent(data)
+    comparison_df = make_comparison(data, most_frequent)
 
     # Agregate to grocery list
-    supermarket_comparison = agg_price.groupby(["supermarket"])["average price"].sum()
+    comparison_df.to_csv(str(DATA / "processed" / "data.csv"), index=False)
 
-    return supermarket_comparison
+    return comparison_df
 
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies"]
-    main(product_categories)
+    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    data=None
+    main(product_categories, data=data)

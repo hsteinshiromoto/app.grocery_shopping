@@ -15,10 +15,9 @@
             "name": "Python: get_product_prices",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/woolworths/get_product_prices.py",
+            "program": "${workspaceFolder}/src/get_prices.py",
             "console": "integratedTerminal",
-            "args": ["-s", "true"
-                    ,"-m", "coles"]
+            "args": ["-s", "woolworths"]
         }
     ]
 }
