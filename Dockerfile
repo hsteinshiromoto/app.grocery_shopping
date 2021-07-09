@@ -21,6 +21,7 @@ ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 ENV TZ Australia/Sydney
 ENV SHELL /bin/bash
+ENV HOME /home/$USERNAME
 
 # Set container time zone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -65,7 +66,9 @@ COPY bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY bin/setup_python.sh /usr/local/bin/setup_python.sh
 COPY bin/test_environment.py /usr/local/bin/test_environment.py
 COPY bin/setup.py /usr/local/bin/setup.py
-COPY requirements.txt /usr/local/requirements.txt
+COPY poetry.lock /usr/local/poetry.lock
+COPY pyproject.toml /usr/local/pyproject.toml
+
 
 RUN chmod +x /usr/local/bin/setup_python.sh && \
     chmod +x /usr/local/bin/entrypoint.sh && \
@@ -78,6 +81,10 @@ WORKDIR /home/$USERNAME
 
 # N.B.: Keep the order 1. entrypoint, 2. cmd
 USER $USERNAME
+
+# Get poetry
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+ENV PATH="${PATH}:$HOME/.poetry/bin"
 
 RUN bash /usr/local/bin/setup_python.sh test_environment && \
 	bash /usr/local/bin/setup_python.sh requirements
