@@ -15,6 +15,7 @@ class SupermarketNames(Enum):
 
     woolworths = auto()
     coles = auto()
+    harris_farm = auto()
 
 
 def str_supermarketnames_map(supermarket: Union[str, SupermarketNames]
