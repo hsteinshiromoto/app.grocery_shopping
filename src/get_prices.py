@@ -179,6 +179,9 @@ class Coles(Supermarket):
                 unit_price = np.nan
                 unit_quantity = None
 
+            if unit_price == "' '":
+                unit_price = np.nan
+
             self.quote["Availability"].append(availability)
             self.quote["Brand"].append(product_brand)
             self.quote["Category"].append(category)
