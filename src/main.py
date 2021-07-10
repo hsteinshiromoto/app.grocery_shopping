@@ -95,7 +95,7 @@ def main(product_categories: list[str]
 
 
 if __name__ == "__main__":
-    product_categories = ["full cream milk", "eggs", "banana", "nappies", "sour cream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes"]
+    product_categories = ["full cream milk", "eggs", "banana", "nappies", "sourcream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes"]
     data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
     data=None
     main(product_categories, data=data)
