@@ -303,7 +303,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
 
             page_number = page_number + 1
 
-    shopping_list["supermarket"] = str_supermarketnames_map(supermarket_name, invert=True)
+    shopping_list["Supermarket"] = str_supermarketnames_map(supermarket_name, invert=True)
 
     if shopping_list.empty:
         msg = f"Expected {supermarket_name} shopping list to be filled. Got empty."
