@@ -169,8 +169,15 @@ class Coles(Supermarket):
                 price = np.nan
                 availability = False
 
-            unit_price = None
-            unit_quantity = None
+            if (container.find('span', {'class': 'package-price'})):
+                text = container.find('span', {'class': 'package-price'}).text.strip()
+                text = text.strip().split("per")
+                unit_price = float(text[0].strip("$"))
+                unit_quantity = text[1].strip()
+
+            else:
+                unit_price = np.nan
+                unit_quantity = None
 
             self.quote["availability"].append(availability)
             self.quote["brand"].append(product_brand)
