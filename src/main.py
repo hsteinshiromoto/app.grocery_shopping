@@ -23,14 +23,14 @@ class EmptyDataFrameError(Exception):
 
 def pre_process(data: pd.DataFrame):
 
-    data['product_price'] = pd.to_numeric(data['product_price'], errors='coerce')
-    data['unit_price'] = pd.to_numeric(data['unit_price'], errors='coerce')
+    data["Product Price"] = pd.to_numeric(data["Product Price"], errors='coerce')
+    data["Unit Price"] = pd.to_numeric(data["Unit Price"], errors='coerce')
 
     return data
 
 
-def get_most_frequent(data: pd.DataFrame, category: str="category"
-                    ,unit_quantity: str="unit_quantity"):
+def get_most_frequent(data: pd.DataFrame, category: str="Category"
+                    ,unit_quantity: str="Unit Quantity"):
     
     grouped = data.groupby([category, unit_quantity]).count().iloc[:, 0].to_frame("Count")
     grouped.reset_index(inplace=True)
@@ -44,15 +44,15 @@ def get_most_frequent(data: pd.DataFrame, category: str="category"
 
 def make_comparison(data, most_frequent):
 
-    mask = (data["category"].isin(most_frequent["category"].values)) & \
-            (data["unit_quantity"].isin(most_frequent["unit_quantity"].values))
+    mask = (data["Category"].isin(most_frequent["Category"].values)) & \
+            (data["Unit Quantity"].isin(most_frequent["Unit Quantity"].values))
     subset = data[mask]
 
-    grouped = subset.groupby(["category", "supermarket"])["unit_price"].mean().to_frame(name="Average Unit Price")
-    grouped["Median Unit Price"] = subset.groupby(["category", "supermarket"])["unit_price"].median()
+    grouped = subset.groupby(["Category", "Supermarket"])["Unit Price"].mean().to_frame(name="Average Unit Price")
+    grouped["Median Unit Price"] = subset.groupby(["Category", "Supermarket"])["Unit Price"].median()
     grouped.reset_index(inplace=True)
-    grouped.merge(subset[["category", "supermarket", "unit_quantity"]], how="left", on=["category", "supermarket"]).drop_duplicates()
-    grouped = grouped.merge(most_frequent[["category", "unit_quantity"]], how="left", on="category")
+    grouped.merge(subset[["Category", "Supermarket", "Unit Quantity"]], how="left", on=["Category", "Supermarket"]).drop_duplicates()
+    grouped = grouped.merge(most_frequent[["Category", "Unit Quantity"]], how="left", on="Category")
 
     return grouped
 
@@ -80,9 +80,9 @@ def main(product_categories: list[str]
             msg = "No data was obtained."
             raise EmptyDataFrameError(msg)
 
-    data = pre_process(data)
+        data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
 
-    data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
+    data = pre_process(data)
 
     # Agregate to grocery list
     most_frequent = get_most_frequent(data)
@@ -96,6 +96,6 @@ def main(product_categories: list[str]
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies", "sour cream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes"]
-    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
     data=None
     main(product_categories, data=data)

@@ -37,16 +37,16 @@ from src.web_api import HTTPResponseError, WebAPI
 
 class Supermarket(ABC, WebAPI):
     quote = {
-        "availability": []
-        ,"brand": []
-        ,"category": []
-        ,"datetime": []
-        ,"name": []
-        ,"pic": []
-        ,"product_price": []
-        ,"product_quantity": []
-        ,"unit_price": []
-        ,"unit_quantity": []
+        "Availability": []
+        ,"Brand": []
+        ,"Category": []
+        ,"Datetime": []
+        ,"Name": []
+        ,"Pic": []
+        ,"Product Price": []
+        ,"Product Quantity": []
+        ,"Unit Price": []
+        ,"Unit Quantity": []
     }
 
     @abstractmethod
@@ -110,16 +110,16 @@ class Woolworths(Supermarket):
             except AttributeError:
                 unit_price = np.nan
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(None)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(None)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(None)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(None)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
@@ -179,16 +179,16 @@ class Coles(Supermarket):
                 unit_price = np.nan
                 unit_quantity = None
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(product_brand)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(product_quantity)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(product_brand)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(product_quantity)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
@@ -240,16 +240,16 @@ class HarrisFarm(Supermarket):
             unit_price = None
             unit_quantity = None
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(product_brand)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(product_quantity)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(product_brand)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(product_quantity)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
