@@ -199,9 +199,10 @@ class HarrisFarm(Supermarket):
         self.name = SupermarketNames.coles
 
     def product_info_container(self):
-        return ('header', {'class': 'product-header'})
+        return ('div', {'class': 'product-item columns large-2'})
 
     def url(self, search_item: str, page_number: int=1):
+        search_item = search_item.replace(" ", "%20") 
         return f"https://www.harrisfarm.com.au/search?q={search_item}&hPP=24&idx=shopify_products&p={page_number}&is_v=1"
     
     def get_products_list(self, container_soup, search_item: str):
@@ -213,8 +214,8 @@ class HarrisFarm(Supermarket):
         
         for container in container_soup:
             # get the product name
-            product_name = container.find("span", {"class": "product-name"}).text.strip()
-            product_brand = container.find("span", {"class": "product-brand"}).text.strip()
+            product_name = container.find("p", {"class": "title"}).text.strip()
+            product_brand = None
             package_sizes = container.find_all("span", {"class": "accessibility-inline"})
             pattern = re.compile(r"\d+\W{0,1}\w+", re.IGNORECASE)
             valid_sizes = [re.search(pattern, i.text.rstrip()) for i in package_sizes]
@@ -230,15 +231,24 @@ class HarrisFarm(Supermarket):
             date_now = datetime.now()        
 
             # check price and availability of each item
-            if (container.find('span', {'class': 'dollar-value'})) :
-                price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
+            price = container.find('span', {'class': 'from_price'})
+            if (price == '') | (not price):
+                price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
                 
             else:
                 price = np.nan
                 availability = False
 
-            unit_price = None
-            unit_quantity = None
+            package_price = container.find('span', {'class': 'compare_at_price unit_price'}).text.strip()
+            if (package_price == '') | (not package_price):
+                unit_price = np.nan
+                unit_quantity = None
+
+            else:
+                text = package_price.strip()
+                
+                unit_price = re.findall("\d+.*\d*", text)[0]
+                unit_quantity = re.findall("\s\w+\Z", text)[0].strip()
 
             self.quote["Availability"].append(availability)
             self.quote["Brand"].append(product_brand)
@@ -259,6 +269,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
 
     supermarket_map = {supermarket_name.woolworths: Woolworths()
                     ,supermarket_name.coles: Coles()
+                    ,supermarket_name.harris_farm: HarrisFarm()
                     } 
     supermarket = supermarket_map[supermarket_name]
     
