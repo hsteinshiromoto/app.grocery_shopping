@@ -36,25 +36,24 @@ def get_most_frequent(data: pd.DataFrame, category: str="Category"
     grouped.reset_index(inplace=True)
 
     # Get index of the original for which `Count` is higher
-    idx = grouped.groupby([category])['Count'].transform(max) == grouped['Count']
+    idx = grouped.groupby([category])["Count"].transform(max) == grouped["Count"]
 
     # Get most common `unit_quantity`
     return grouped.loc[idx, :]
 
 
-def make_comparison(data, most_frequent):
+def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
 
     mask = (data["Category"].isin(most_frequent["Category"].values)) & \
             (data["Unit Quantity"].isin(most_frequent["Unit Quantity"].values))
     subset = data[mask]
 
-    grouped = subset.groupby(["Category", "Supermarket"])["Unit Price"].mean().to_frame(name="Average Unit Price")
-    grouped["Median Unit Price"] = subset.groupby(["Category", "Supermarket"])["Unit Price"].median()
-    grouped.reset_index(inplace=True)
-    grouped.merge(subset[["Category", "Supermarket", "Unit Quantity"]], how="left", on=["Category", "Supermarket"]).drop_duplicates()
-    grouped = grouped.merge(most_frequent[["Category", "Unit Quantity"]], how="left", on="Category")
+    comparison = subset.groupby(["Category", "Supermarket"])["Unit Price"].mean().to_frame(name="Average Unit Price")
+    comparison["Median Unit Price"] = subset.groupby(["Category", "Supermarket"])["Unit Price"].median()
+    comparison.reset_index(inplace=True)
+    comparison = comparison.merge(most_frequent[["Category", "Unit Quantity"]], how="left", on=["Category"]).drop_duplicates()
 
-    return grouped
+    return comparison, comparison.groupby("Supermarket")["Average Unit Price"].sum()
 
 
 def main(product_categories: list[str]
@@ -86,7 +85,7 @@ def main(product_categories: list[str]
 
     # Agregate to grocery list
     most_frequent = get_most_frequent(data)
-    comparison_df = make_comparison(data, most_frequent)
+    comparison_df, summary = make_comparison(data, most_frequent)
 
     # Agregate to grocery list
     comparison_df.to_csv(str(DATA / "processed" / "data.csv"), index=False)
@@ -97,5 +96,5 @@ def main(product_categories: list[str]
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies", "sourcream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes"]
     data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
-    data=None
+    # data=None
     main(product_categories, data=data)
