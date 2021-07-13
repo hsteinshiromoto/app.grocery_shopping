@@ -74,7 +74,7 @@ def main(product_categories: list[str]
                 warnings.warn(str(traceback.print_exc()))
                 pass
 
-            data = pd.concat([data, shopping_list])
+            data = pd.concat([data, shopping_list.copy()])
 
         if data.empty:
             msg = "No data was obtained."
