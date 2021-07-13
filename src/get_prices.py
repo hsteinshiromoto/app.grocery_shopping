@@ -169,18 +169,15 @@ class Coles(Supermarket):
                 price = np.nan
                 availability = False
 
-            if (container.find('span', {'class': 'package-price'})):
-                text = container.find('span', {'class': 'package-price'}).text.strip()
-                text = text.strip().split("per")
-                unit_price = float(text[0].strip("$"))
-                unit_quantity = text[1].strip()
-
-            else:
+            package_price = container.find('span', {'class': 'package-price'}).text.strip()
+            if (package_price == '') | (not package_price):
                 unit_price = np.nan
                 unit_quantity = None
 
-            if unit_price == "' '":
-                unit_price = np.nan
+            else:
+                text = package_price.strip().split("per")
+                unit_price = float(text[0].strip("$"))
+                unit_quantity = text[1].strip()
 
             self.quote["Availability"].append(availability)
             self.quote["Brand"].append(product_brand)
@@ -311,7 +308,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
     if shopping_list.empty:
         msg = f"Expected {supermarket_name} shopping list to be filled. Got empty."
         raise ValueError(msg)
- 
+
     shopping_list.drop_duplicates(inplace=True)
     shopping_list.to_csv(str(DATA / "raw" / f"{supermarket_name}.csv"), index=False)
 
