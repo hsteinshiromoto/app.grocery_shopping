@@ -281,7 +281,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
         n_items = 1
         page_number = 1
 
-        while(n_items != 0):
+        while(n_items > 0):
             url = supermarket.url(product_category, page_number)
 
             try:
