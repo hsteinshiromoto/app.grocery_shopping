@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
+from typeguard import typechecked
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
                                 stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8'))
@@ -14,8 +15,8 @@ sys.path.append(str(PROJECT_ROOT))
 
 import src.get_prices as gp
 from src.base import SupermarketNames
-from src.features.build_features import measurement_cleaning, pre_process
 from src.data.make_dataset import get_most_frequent, make_comparison
+from src.features.build_features import measurement_cleaning, pre_process
 
 
 class EmptyDataFrameError(Exception):
@@ -23,6 +24,7 @@ class EmptyDataFrameError(Exception):
         super().__init__(message)
 
 
+@typechecked
 def main(product_categories: list[str]
     ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
                                                 ,SupermarketNames.woolworths]
