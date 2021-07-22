@@ -13,7 +13,7 @@ DATA = PROJECT_ROOT / "data"
 
 sys.path.append(str(PROJECT_ROOT))
 
-import src.get_prices as gp
+import src.data.get_prices as gp
 from src.base import SupermarketNames
 from src.features.build_features import measurement_cleaning, pre_process
 
