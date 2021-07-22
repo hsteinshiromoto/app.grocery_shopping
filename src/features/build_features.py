@@ -1,8 +1,10 @@
 import re
 
 import pandas as pd
+from typeguard import typechecked
 
 
+@typechecked
 def pre_process(data: pd.DataFrame):
 
     data["Product Price"] = pd.to_numeric(data["Product Price"], errors='coerce')
@@ -11,6 +13,7 @@ def pre_process(data: pd.DataFrame):
     return data
 
 
+@typechecked
 def measurement_cleaning(x: str): 
 
     if not isinstance(x, str):
