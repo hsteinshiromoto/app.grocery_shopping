@@ -14,6 +14,8 @@ sys.path.append(str(PROJECT_ROOT))
 
 import src.get_prices as gp
 from src.base import SupermarketNames
+from src.features.build_features import measurement_cleaning, pre_process
+from src.data.make_dataset import get_most_frequent, make_comparison
 
 
 class EmptyDataFrameError(Exception):
@@ -47,6 +49,9 @@ def main(product_categories: list[str]
         data.to_csv(str(DATA / "interim" / "data.csv"), index=False)
 
     data = pre_process(data)
+
+    data[["Unit Quantity", "Unity Measurement"]] = pd.DataFrame(data["Unit Quantity"].apply(measurement_cleaning).tolist()
+                                                    , index=data.index)
 
     # Agregate to grocery list
     most_frequent = get_most_frequent(data)
