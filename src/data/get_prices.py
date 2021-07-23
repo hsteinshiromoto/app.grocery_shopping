@@ -32,21 +32,21 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 from src.base import SupermarketNames, str_supermarketnames_map
-from src.web_api import HTTPResponseError, WebAPI
+from src.api.web import HTTPResponseError, WebAPI
 
 
 class Supermarket(ABC, WebAPI):
     quote = {
-        "availability": []
-        ,"brand": []
-        ,"category": []
-        ,"datetime": []
-        ,"name": []
-        ,"pic": []
-        ,"product_price": []
-        ,"product_quantity": []
-        ,"unit_price": []
-        ,"unit_quantity": []
+        "Availability": []
+        ,"Brand": []
+        ,"Category": []
+        ,"Datetime": []
+        ,"Name": []
+        ,"Pic": []
+        ,"Product Price": []
+        ,"Product Quantity": []
+        ,"Unit Price": []
+        ,"Unit Quantity": []
     }
 
     @abstractmethod
@@ -110,16 +110,16 @@ class Woolworths(Supermarket):
             except AttributeError:
                 unit_price = np.nan
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(None)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(None)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(None)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(None)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
@@ -169,19 +169,26 @@ class Coles(Supermarket):
                 price = np.nan
                 availability = False
 
-            unit_price = None
-            unit_quantity = None
+            package_price = container.find('span', {'class': 'package-price'}).text.strip()
+            if (package_price == '') | (not package_price):
+                unit_price = np.nan
+                unit_quantity = None
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(product_brand)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(product_quantity)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            else:
+                text = package_price.strip().split("per")
+                unit_price = float(text[0].strip("$"))
+                unit_quantity = text[1].strip()
+
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(product_brand)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(product_quantity)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
@@ -192,11 +199,11 @@ class HarrisFarm(Supermarket):
         self.name = SupermarketNames.coles
 
     def product_info_container(self):
-        return ('header', {'class': 'product-header'})
+        return ('div', {'class': 'product-item columns large-2'})
 
     def url(self, search_item: str, page_number: int=1):
         search_item = search_item.replace(" ", "%20") 
-        return f"https://shop.coles.com.au/a/national/everything/search/{search_item}?pageNumber={page_number}"
+        return f"https://www.harrisfarm.com.au/search?q={search_item}&hPP=24&idx=shopify_products&p={page_number}&is_v=1"
     
     def get_products_list(self, container_soup, search_item: str):
         return self.scrape_products(container_soup, search_item)
@@ -207,8 +214,8 @@ class HarrisFarm(Supermarket):
         
         for container in container_soup:
             # get the product name
-            product_name = container.find("span", {"class": "product-name"}).text.strip()
-            product_brand = container.find("span", {"class": "product-brand"}).text.strip()
+            product_name = container.find("p", {"class": "title"}).text.strip()
+            product_brand = None
             package_sizes = container.find_all("span", {"class": "accessibility-inline"})
             pattern = re.compile(r"\d+\W{0,1}\w+", re.IGNORECASE)
             valid_sizes = [re.search(pattern, i.text.rstrip()) for i in package_sizes]
@@ -224,26 +231,35 @@ class HarrisFarm(Supermarket):
             date_now = datetime.now()        
 
             # check price and availability of each item
-            if (container.find('span', {'class': 'dollar-value'})) :
-                price = container.find('span', {'class': 'dollar-value'}).text.strip() + container.find('span', {'class': 'cent-value'}).text.strip()
+            price = container.find('span', {'class': 'from_price'})
+            if (price == '') | (not price):
+                price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
                 
             else:
                 price = np.nan
                 availability = False
 
-            unit_price = None
-            unit_quantity = None
+            package_price = container.find('span', {'class': 'compare_at_price unit_price'}).text.strip()
+            if (package_price == '') | (not package_price):
+                unit_price = np.nan
+                unit_quantity = None
 
-            self.quote["availability"].append(availability)
-            self.quote["brand"].append(product_brand)
-            self.quote["category"].append(category)
-            self.quote["datetime"].append(date_now)
-            self.quote["name"].append(product_name)
-            self.quote["pic"].append(None)
-            self.quote["product_price"].append(price)
-            self.quote["product_quantity"].append(product_quantity)
-            self.quote["unit_price"].append(unit_price)
-            self.quote["unit_quantity"].append(unit_quantity)
+            else:
+                text = package_price.strip()
+                
+                unit_price = re.findall("\d+.*\d*", text)[0]
+                unit_quantity = re.findall("\s\w+\Z", text)[0].strip()
+
+            self.quote["Availability"].append(availability)
+            self.quote["Brand"].append(product_brand)
+            self.quote["Category"].append(category)
+            self.quote["Datetime"].append(date_now)
+            self.quote["Name"].append(product_name)
+            self.quote["Pic"].append(None)
+            self.quote["Product Price"].append(price)
+            self.quote["Product Quantity"].append(product_quantity)
+            self.quote["Unit Price"].append(unit_price)
+            self.quote["Unit Quantity"].append(unit_quantity)
 
         return pd.DataFrame.from_dict(self.quote)
 
@@ -253,6 +269,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
 
     supermarket_map = {supermarket_name.woolworths: Woolworths()
                     ,supermarket_name.coles: Coles()
+                    ,supermarket_name.harris_farm: HarrisFarm()
                     } 
     supermarket = supermarket_map[supermarket_name]
     
@@ -264,7 +281,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
         n_items = 1
         page_number = 1
 
-        while(n_items != 0):
+        while(n_items > 0):
             url = supermarket.url(product_category, page_number)
 
             try:
@@ -297,12 +314,12 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
 
             page_number = page_number + 1
 
-    shopping_list["supermarket"] = str_supermarketnames_map(supermarket_name, invert=True)
+    shopping_list["Supermarket"] = str_supermarketnames_map(supermarket_name, invert=True)
 
     if shopping_list.empty:
         msg = f"Expected {supermarket_name} shopping list to be filled. Got empty."
         raise ValueError(msg)
- 
+
     shopping_list.drop_duplicates(inplace=True)
     shopping_list.to_csv(str(DATA / "raw" / f"{supermarket_name}.csv"), index=False)
 

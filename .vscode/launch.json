@@ -12,12 +12,12 @@
             "console": "integratedTerminal"
         }
         ,{
-            "name": "Python: get_product_prices",
+            "name": "get_prices",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/get_prices.py",
             "console": "integratedTerminal",
-            "args": ["-s", "woolworths"]
+            "args": ["-s", "coles"]
         }
     ]
 }
