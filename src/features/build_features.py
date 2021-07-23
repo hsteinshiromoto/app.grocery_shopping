@@ -1,6 +1,7 @@
 import re
 from typing import Union
 
+import numpy as np
 import pandas as pd
 from typeguard import typechecked
 
@@ -20,7 +21,16 @@ def measurement_cleaning(x: Union[str, float]):
     if not isinstance(x, str):
         return []
 
-    quantity = float(re.match(r"\d+", x).group())
+    try:
+        quantity = float(re.match(r"\d+", x).group())
+
+    except AttributeError as err:
+        if "object has no attribute 'group'" in err.message:
+            quantity = np.nan
+
+        else:
+            raise err
+
     measurement = re.findall(r"[a-zA-z]+", x)[0]
 
     measurements_dict = {"g": "kg"
@@ -28,7 +38,7 @@ def measurement_cleaning(x: Union[str, float]):
                     ,"ea": "each", "each": "each"
                     } 
 
-    if measurement.lower() in ["kg", "l"]:
+    if measurement.lower() in ["kg", "l", "litre", "litres"]:
         return [quantity, measurement.lower()]
 
     elif measurement.lower() in ["g", "ml"]:
