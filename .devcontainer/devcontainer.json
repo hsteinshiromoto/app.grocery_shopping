@@ -38,6 +38,7 @@
 				,"vincaslt.highlight-matching-tag"
 				,"visualstudioexptteam.vscodeintellicode"
 				,"yzhang.markdown-all-in-one"
+				,"littlefoxteam.vscode-python-test-adapter"
 				],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
