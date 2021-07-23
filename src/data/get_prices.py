@@ -32,7 +32,7 @@ DATA = PROJECT_ROOT / "data"
 sys.path.append(str(PROJECT_ROOT))
 
 from src.base import SupermarketNames, str_supermarketnames_map
-from src.web_api import HTTPResponseError, WebAPI
+from src.api.web import HTTPResponseError, WebAPI
 
 
 class Supermarket(ABC, WebAPI):
