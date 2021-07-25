@@ -25,13 +25,18 @@ def measurement_cleaning(x: Union[str, float]):
         quantity = float(re.match(r"\d+", x).group())
 
     except AttributeError as err:
-        if "object has no attribute 'group'" in err.message:
-            quantity = np.nan
+        traceback_msg = getattr(err, 'message', str(err))
 
-        else:
-            raise err
+        if "group" in traceback_msg:
+            return []
 
-    measurement = re.findall(r"[a-zA-z]+", x)[0]
+        raise err
+
+    try:
+        measurement = re.findall(r"[a-zA-z]+", x)[0]
+
+    except IndexError as err:
+        return []
 
     measurements_dict = {"g": "kg"
                     ,"ml": "l"
