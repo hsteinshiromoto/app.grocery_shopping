@@ -15,9 +15,9 @@
             "name": "get_prices",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/get_prices.py",
+            "program": "${workspaceFolder}/src/data/get_prices.py",
             "console": "integratedTerminal",
-            "args": ["-s", "coles"]
+            "args": ["-s", "harris_farm"]
         }
     ]
 }

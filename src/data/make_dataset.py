@@ -55,7 +55,8 @@ def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
 @typechecked
 def main(product_categories: list[str]
     ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
-                                                ,SupermarketNames.woolworths]
+                                                ,SupermarketNames.woolworths
+                                                ,SupermarketNames.harris_farm]
     ,data: pd.DataFrame=None):
 
     if data is None:
@@ -95,6 +96,6 @@ def main(product_categories: list[str]
 
 if __name__ == "__main__":
     product_categories = ["full cream milk", "eggs", "banana", "nappies", "sourcream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes", "mince"]
-    data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
+    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
     # data=None
-    main(product_categories, data=data)
+    main(product_categories)

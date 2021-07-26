@@ -27,7 +27,7 @@ def measurement_cleaning(x: Union[str, float]):
     except AttributeError as err:
         traceback_msg = getattr(err, 'message', str(err))
 
-        if "group" in traceback_msg:
+        if "object has no attribute 'group'" in traceback_msg:
             return []
 
         raise err
