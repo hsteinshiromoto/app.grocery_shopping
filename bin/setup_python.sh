@@ -12,12 +12,4 @@ if [[ $1 = "requirements" ]]; then
 	cd /usr/local/bin/
 	pip3 install -U pip setuptools wheel
 	
-	cd /usr/local/
-	poetry install --no-interaction --no-ansi
-	echo ">>> Done!"
-
-	# echo ">>> Getting virtual environment path ..."
-	# VENV=/home/vscode/.cache/pypoetry/virtualenvs/$(ls ~/.cache/pypoetry/virtualenvs/)
-	# export ${VENV}
-	# echo ">>> Got ${VENV}"
 fi
