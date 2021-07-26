@@ -241,7 +241,12 @@ class HarrisFarm(Supermarket):
                 availability = False
                 
             else:
-                price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
+                try:
+                    price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
+
+                except ValueError:
+                    price = np.nan
+
                 
 
             package_price = container.find('span', {'class': 'compare_at_price unit_price'}).text.strip()
