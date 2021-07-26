@@ -95,12 +95,16 @@ class Woolworths(Supermarket):
             # check price and availability of each item
             price_dollar = container.find('span',{'class':'price-dollars'})
             price_cent = container.find('span', {'class': 'price-cents'})
+            price = np.nan
 
             try:
                 price = float(price_dollar.text + '.' + price_cent.text)
 
             except AttributeError:
-                availability = False
+                availability = False    
+
+            unit_price = np.nan
+            unit_quantity = np.nan
 
             try: 
                 price_per_unit = container.find('div', {'class': 'shelfProductTile-cupPrice'}).text.strip().replace(" ", "").split("/")
@@ -108,7 +112,7 @@ class Woolworths(Supermarket):
                 unit_quantity = price_per_unit[1]
                 
             except AttributeError:
-                unit_price = np.nan
+                pass
 
             self.quote["Availability"].append(availability)
             self.quote["Brand"].append(None)
@@ -117,7 +121,7 @@ class Woolworths(Supermarket):
             self.quote["Name"].append(product_name)
             self.quote["Pic"].append(None)
             self.quote["Product Price"].append(price)
-            self.quote["Product Quantity"].append(None)
+            self.quote["Product Quantity"].append(np.nan)
             self.quote["Unit Price"].append(unit_price)
             self.quote["Unit Quantity"].append(unit_quantity)
 
@@ -172,7 +176,7 @@ class Coles(Supermarket):
             package_price = container.find('span', {'class': 'package-price'}).text.strip()
             if (package_price == '') | (not package_price):
                 unit_price = np.nan
-                unit_quantity = None
+                unit_quantity = np.nan
 
             else:
                 text = package_price.strip().split("per")
@@ -233,16 +237,17 @@ class HarrisFarm(Supermarket):
             # check price and availability of each item
             price = container.find('span', {'class': 'from_price'})
             if (price == '') | (not price):
-                price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
-                
-            else:
                 price = np.nan
                 availability = False
+                
+            else:
+                price = float(container.find('span', {'class': 'from_price'}).text.strip().strip("$"))
+                
 
             package_price = container.find('span', {'class': 'compare_at_price unit_price'}).text.strip()
             if (package_price == '') | (not package_price):
                 unit_price = np.nan
-                unit_quantity = None
+                unit_quantity = np.nan
 
             else:
                 text = package_price.strip()
