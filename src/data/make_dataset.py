@@ -68,6 +68,15 @@ def get_most_frequent(data: pd.DataFrame, category: str="Category"
 
 @typechecked
 def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
+    """Compare unit price of each product category across different supermarkets
+
+    Args:
+        data (pd.DataFrame): Data set contaning product and prices
+        most_frequent (pd.DataFrame): Most frequent units of measurement of each product category
+
+    Returns:
+        (pd.DataFrame): Comparison of unit price of each product category across different supermarkets
+    """
 
     mask = (data["Category"].isin(most_frequent["Category"].values)) & \
             (data["Unit Quantity"].isin(most_frequent["Unit Quantity"].values))
