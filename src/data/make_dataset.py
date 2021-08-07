@@ -25,10 +25,21 @@ class EmptyDataFrameError(Exception):
 
 
 @typechecked
-def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw"):
+def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw") -> pd.DataFrame:
+    """Read shopping list from a yaml file.
+
+    Args:
+        basename (str, optional): Shopping list filename. Defaults to "shopping_list.yml".
+        path (Path, optional): Path to load filename. Defaults to DATA/"raw".
+
+    Returns:
+        (pd.DataFrame): Shopping list
+    """
 
     with open(str(path / basename), 'r') as stream:
-        return pd.DataFrame.from_dict(yaml.safe_load(stream))
+        shopping_list = pd.DataFrame.from_dict(yaml.safe_load(stream))
+    
+    return shopping_list.T.reset_index().rename(columns={"index": "product"})
 
 
 @typechecked
