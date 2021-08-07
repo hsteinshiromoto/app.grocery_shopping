@@ -1,7 +1,13 @@
-# app.grocery_shopping
+# 1. Description
 Scraps price for list of items
 
-# Repository Structure
+# 2. Table of Contents
+
+- [1. Description](#1-description)
+- [2. Table of Contents](#2-table-of-contents)
+- [3. Repository Structure](#3-repository-structure)
+
+# 3. Repository Structure
 ```
 .
 ├── Dockerfile
