@@ -12,10 +12,10 @@ Scraps price for list of items
 .
 ├── Dockerfile
 ├── LICENSE
-├── Makefile
+├── Makefile                        <- Build container
 ├── README.md
 ├── bin
-│   ├── container.sh
+│   ├── container.sh                <- Run container
 │   ├── entrypoint.sh
 │   ├── setup.py
 │   ├── setup_python.sh
@@ -24,26 +24,22 @@ Scraps price for list of items
 │   ├── interim
 │   ├── processed
 │   └── raw
-├── debian-requirements.txt
+├── debian-requirements.txt         <- Necessary Debian packages
 ├── files
 ├── notebooks
-│   ├── geckodriver.log
-│   └── scrap.ipynb
-├── poetry.lock
-├── pyproject.toml
-├── requirements.txt
-├── src
+├── poetry.lock             
+├── pyproject.toml                  <- Repository Python dependencies
+├── src                             <- Source files
 │   ├── __main__.py
 │   ├── api
-│   │   └── web.py
+│   │   └── web.py                  <- WEB Scraping API
 │   ├── base.py
-│   ├── data
-│   │   ├── get_prices.py
-│   │   └── make_dataset.py
-│   ├── features
-│   │   └── build_features.py
-│   └── process.py
-└── tests
+│   ├── data                        <- Scripts used for data manipulation
+│   │   ├── get_prices.py           <- Scrap prices using WEB API
+│   │   └── make_dataset.py         <- Build prices dataset
+│   └── features                    <- Process dataset
+│   │   └── build_features.py       <- Analysis of price dataset
+└── tests                           <- Test source files
     ├── test_get_prices.py
     └── test_web_api.py
 ```
