@@ -44,7 +44,17 @@ def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw
 
 @typechecked
 def get_most_frequent(data: pd.DataFrame, category: str="Category"
-                    ,unit_quantity: str="Unit Quantity"):
+                    ,unit_quantity: str="Unit Quantity") -> pd.DataFrame:
+    """Get most frequent measurement unit for each product category
+
+    Args:
+        data (pd.DataFrame): Prices
+        category (str, optional): Product category. Defaults to "Category".
+        unit_quantity (str, optional): Unit quantity. Defaults to "Unit Quantity".
+
+    Returns:
+        (pd.DataFrame): Product categories and most frequent measurement unit
+    """
     
     grouped = data.groupby([category, unit_quantity]).count().iloc[:, 0].to_frame("Count")
     grouped.reset_index(inplace=True)
