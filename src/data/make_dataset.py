@@ -39,7 +39,7 @@ def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw
     with open(str(path / basename), 'r') as stream:
         shopping_list = pd.DataFrame.from_dict(yaml.safe_load(stream))
     
-    return shopping_list.T.reset_index().rename(columns={"index": "product"})
+    return shopping_list.T.reset_index().rename(columns={"index": "Product Category"})
 
 
 @typechecked
@@ -91,13 +91,15 @@ def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
 
 
 @typechecked
-def main(product_categories: list[str]
-    ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
+def main(supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
                                                 ,SupermarketNames.woolworths
                                                 ,SupermarketNames.harris_farm]
     ,data: pd.DataFrame=None):
 
     if data is None:
+        shopping_list = read_shopping_list()
+        product_categories = shopping_list["Product Category"].tolist()
+
         data = pd.DataFrame()
 
         for supermarket_name in supermarkets_list:
@@ -133,7 +135,4 @@ def main(product_categories: list[str]
 
 
 if __name__ == "__main__":
-    product_categories = ["full cream milk", "eggs", "banana", "nappies", "sourcream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes", "mince"]
-    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
-    # data=None
-    main(product_categories)
+    main()
