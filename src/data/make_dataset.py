@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
+import yaml
 from typeguard import typechecked
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
@@ -21,6 +22,13 @@ from src.features.build_features import measurement_cleaning, pre_process
 class EmptyDataFrameError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
+
+
+@typechecked
+def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw"):
+
+    with open(str(path / basename), 'r') as stream:
+        return pd.DataFrame.from_dict(yaml.safe_load(stream))
 
 
 @typechecked
