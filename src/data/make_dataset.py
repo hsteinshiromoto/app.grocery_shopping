@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
+import yaml
 from typeguard import typechecked
 
 PROJECT_ROOT = Path(subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], 
@@ -24,8 +25,36 @@ class EmptyDataFrameError(Exception):
 
 
 @typechecked
+def read_shopping_list(basename: str="shopping_list.yml", path: Path=DATA / "raw") -> pd.DataFrame:
+    """Read shopping list from a yaml file.
+
+    Args:
+        basename (str, optional): Shopping list filename. Defaults to "shopping_list.yml".
+        path (Path, optional): Path to load filename. Defaults to DATA/"raw".
+
+    Returns:
+        (pd.DataFrame): Shopping list
+    """
+
+    with open(str(path / basename), 'r') as stream:
+        shopping_list = pd.DataFrame.from_dict(yaml.safe_load(stream))
+    
+    return shopping_list.T.reset_index().rename(columns={"index": "Product Category"})
+
+
+@typechecked
 def get_most_frequent(data: pd.DataFrame, category: str="Category"
-                    ,unit_quantity: str="Unit Quantity"):
+                    ,unit_quantity: str="Unit Quantity") -> pd.DataFrame:
+    """Get most frequent measurement unit for each product category
+
+    Args:
+        data (pd.DataFrame): Prices
+        category (str, optional): Product category. Defaults to "Category".
+        unit_quantity (str, optional): Unit quantity. Defaults to "Unit Quantity".
+
+    Returns:
+        (pd.DataFrame): Product categories and most frequent measurement unit
+    """
     
     grouped = data.groupby([category, unit_quantity]).count().iloc[:, 0].to_frame("Count")
     grouped.reset_index(inplace=True)
@@ -39,6 +68,15 @@ def get_most_frequent(data: pd.DataFrame, category: str="Category"
 
 @typechecked
 def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
+    """Compare unit price of each product category across different supermarkets
+
+    Args:
+        data (pd.DataFrame): Data set contaning product and prices
+        most_frequent (pd.DataFrame): Most frequent units of measurement of each product category
+
+    Returns:
+        (pd.DataFrame): Comparison of unit price of each product category across different supermarkets
+    """
 
     mask = (data["Category"].isin(most_frequent["Category"].values)) & \
             (data["Unit Quantity"].isin(most_frequent["Unit Quantity"].values))
@@ -53,13 +91,15 @@ def make_comparison(data: pd.DataFrame, most_frequent: pd.DataFrame):
 
 
 @typechecked
-def main(product_categories: list[str]
-    ,supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
+def main(supermarkets_list: list[SupermarketNames]=[SupermarketNames.coles
                                                 ,SupermarketNames.woolworths
                                                 ,SupermarketNames.harris_farm]
     ,data: pd.DataFrame=None):
 
     if data is None:
+        shopping_list = read_shopping_list()
+        product_categories = shopping_list["Product Category"].tolist()
+
         data = pd.DataFrame()
 
         for supermarket_name in supermarkets_list:
@@ -95,7 +135,4 @@ def main(product_categories: list[str]
 
 
 if __name__ == "__main__":
-    product_categories = ["full cream milk", "eggs", "banana", "nappies", "sourcream", "yogurt", "penne", "tomato sauce", "carrots", "tomatoes", "mince"]
-    # data = pd.read_csv(str(PROJECT_ROOT / 'data' / "interim" / "data.csv"))
-    # data=None
-    main(product_categories)
+    main()
