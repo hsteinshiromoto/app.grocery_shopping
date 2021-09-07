@@ -44,18 +44,17 @@ def make_shopping_list():
     with open(str(path / basename), 'w') as outfile:
         yaml.dump(test_list, outfile, default_flow_style=False)
 
-    return path, basename
+    return path
 
 def teardown_function(make_shopping_list):
-    path, basename = make_shopping_list()
+    basename = "test_shopping_list.yml"
     
-    files = os.listdir(str(path))
+    files = os.listdir(str(make_shopping_list))
     if basename in files:
         os.remove(basename)
 
 
 def test_read_shopping_list(make_shopping_list):
-    path, basename = make_shopping_list
-    data = read_shopping_list(basename=basename, path=path)
+    data = read_shopping_list(basename="test_shopping_list.yml", path=make_shopping_list)
 
     assert isinstance(data, pd.DataFrame)
