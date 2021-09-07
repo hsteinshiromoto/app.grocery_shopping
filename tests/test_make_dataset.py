@@ -44,17 +44,16 @@ def make_shopping_list():
     with open(str(path / basename), 'w') as outfile:
         yaml.dump(test_list, outfile, default_flow_style=False)
 
-    return path
-
-def teardown_function(make_shopping_list):
-    basename = "test_shopping_list.yml"
-    
-    files = os.listdir(str(make_shopping_list))
-    if basename in files:
-        os.remove(basename)
+    return path, basename
 
 
 def test_read_shopping_list(make_shopping_list):
-    data = read_shopping_list(basename="test_shopping_list.yml", path=make_shopping_list)
+    path, basename = make_shopping_list
+    data = read_shopping_list(basename=basename, path=path)
 
     assert isinstance(data, pd.DataFrame)
+
+    with pytest.raises(FileNotFoundError) as excinfo:
+        read_shopping_list(basename="None")
+    
+    assert type(excinfo.value) is FileNotFoundError
