@@ -35,7 +35,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 COPY debian-requirements.txt /usr/local/debian-requirements.txt
 RUN apt-get update && \
 	DEBIAN_PACKAGES=$(egrep -v "^\s*(#|$)" /usr/local/debian-requirements.txt) && \
-    apt-get install -y $DEBIAN_PACKAGES && \
+    apt-get install -f -y $DEBIAN_PACKAGES && \
     apt-get clean
 
 # Install necessary libraries for google chrome
@@ -48,16 +48,6 @@ RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_
 RUN unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/
 RUN rm /tmp/chromedriver_linux64.zip
 RUN export PATH=$PATH:/usr/local/bin/chromedriver
-
-# ---
-# Setup vscode as nonroot user
-# ---
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    #
-    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # ---
 # Copy Container Setup Scripts
@@ -82,9 +72,6 @@ RUN bash /usr/local/bin/setup_python.sh test_environment && \
 RUN mkdir -p /home/$USERNAME
 WORKDIR /home/$USERNAME
 
-# N.B.: Keep the order 1. entrypoint, 2. cmd
-USER $USERNAME
-
 # Get poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 
@@ -94,6 +81,7 @@ RUN poetry config virtualenvs.create false \
     && cd /usr/local \
     && poetry install --no-interaction --no-ansi
 
+# N.B.: Keep the order 1. entrypoint, 2. cmd
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 EXPOSE 8888 
