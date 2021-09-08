@@ -39,9 +39,9 @@ RUN apt-get update && \
     apt-get clean
 
 # Install necessary libraries for google chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
-RUN apt-get update && apt install -y google-chrome-stable
+RUN wget --no-verbose -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_91.0.4472.164-1_amd64.deb \
+    && apt install -y /tmp/chrome.deb \
+    && rm /tmp/chrome.deb
 
 # Download and install chromedriver
 RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_linux64.zip -P /tmp
