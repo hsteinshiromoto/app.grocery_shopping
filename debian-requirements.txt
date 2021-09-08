@@ -5,7 +5,7 @@ git
 gnupg2
 gosu
 graphviz
-libappindicator1
+# libappindicator1
 libasound2
 libatk1.0-0
 libcairo2
