@@ -35,7 +35,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 COPY debian-requirements.txt /usr/local/debian-requirements.txt
 RUN apt-get update && \
 	DEBIAN_PACKAGES=$(egrep -v "^\s*(#|$)" /usr/local/debian-requirements.txt) && \
-    apt-get install -y $DEBIAN_PACKAGES && \
+    apt-get install -f -y $DEBIAN_PACKAGES && \
     apt-get clean
 
 # Install necessary libraries for google chrome
