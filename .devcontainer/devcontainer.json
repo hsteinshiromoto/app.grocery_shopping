@@ -2,8 +2,6 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.183.0/containers/ubuntu
 {
 	"image": "hsteinshiromoto/app.grocery_shopping:latest",
-	"context": "..",
-	"dockerFile": "../Dockerfile",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
@@ -48,5 +46,5 @@
 	// "postCreateCommand": "uname -a",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode"
+	// "remoteUser": "vscode"
 }
