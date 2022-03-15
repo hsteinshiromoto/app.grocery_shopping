@@ -20,8 +20,8 @@ class Enum_Handler(EnumMeta):
 class SupermarketNames(Enum, metaclass=Enum_Handler):
     """Supermarket
 
-    Args:
-        Enum ([type]): [description]
+    Attributes: 
+        supermarked_name (str): Supermarket name
 
     Returns:
         [type]: [description]
