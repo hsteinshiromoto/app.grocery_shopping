@@ -3,7 +3,21 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import Union
 
-class SupermarketNames(Enum):
+
+class Enum_Handler(EnumMeta):
+    """Enum class to handle undefined enum values"""
+
+    def __getitem__(cls, name):
+        try:
+            return super().__getitem__(name)
+
+        except (KeyError) as error:
+            options = ', '.join(cls._member_map_.keys())
+            msg = f'Expected either {options}. Got \'{name}\'.'
+            raise ValueError(msg) from None
+
+
+class SupermarketNames(Enum, metaclass=Enum_Handler):
     """Supermarket
 
     Args:
