@@ -294,6 +294,7 @@ def main(product_categories: list[str], supermarket_name: SupermarketNames
         while(n_items > 0):
             url = supermarket.url(product_category, page_number)
 
+            #! TODO: Make a context manager?
             try:
                 print(f"Reading page# {page_number}")
                 html = supermarket.get_page_source(url)

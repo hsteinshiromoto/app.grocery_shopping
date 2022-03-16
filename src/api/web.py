@@ -19,6 +19,7 @@ class HTTPResponseError(WebDriverException):
 
 
 class WebAPI(object):
+    #! TODO: Reanalize if this is doable
     """Get page source
 
     Args:
