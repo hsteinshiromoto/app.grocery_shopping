@@ -19,6 +19,22 @@ class HTTPResponseError(WebDriverException):
 
 
 class WebAPI(object):
+    """Get page source
+
+    Args:
+        user_agent (str): Webdriver user agent.
+
+    Raises:
+        HTTPResponseError: Raises error, when the response is not 200.
+
+    Returns:
+        _type_: Page source
+
+     Example:
+        >>> with WebAPI() as connection:
+        ...     df = pd.read_sql_query(query, con=connection)
+    """
+    
     def __init__(self, user_agent: str="Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36") -> None:
         # adding webdriver options
         options = webdriver.ChromeOptions()
@@ -39,6 +55,12 @@ class WebAPI(object):
         capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}
         
         self.driver = webdriver.Chrome(options=options, desired_capabilities=capabilities)
+
+    def __enter__(self):
+        return self.get_page_source
+
+    def __exit__(self, error: Exception, value: object, traceback: object):
+        return None
 
 
     def __get_status(self) -> int:
