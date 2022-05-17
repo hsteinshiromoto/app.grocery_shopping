@@ -17,7 +17,7 @@ typeguard = "^2.12.1"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
 ipykernel = "^6.0.1"
-jupyterlab = "^3.0.16"
+jupyterlab = "^3.0.17"
 rope = "^0.19.0"
 
 [build-system]
